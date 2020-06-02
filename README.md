@@ -7,7 +7,7 @@ Handling optional record fields through first class `undefined` value and typesa
 This idea was ripped from `oneof` library by @jvliwanag. I've narrowed it down to handle only optional fields in records.
 Thanks to this simplification I'm able somewhat accept also polymorphic value in a provided record. There is an additional cost to this approach as coercing requires a `Proxy` value with the expected record type to do coercing. I don't think that is a problem because we want to improve the user experience and library authors or codegen tools should handle this additional requirement easily.
 
-# Objectives
+## Objectives
 
   * Expose as simple as possible API for optional fields definition (single constraint) which tries to handle polymorphic values in the provided `Record`.
 
@@ -59,7 +59,6 @@ consumer r =
     opts.b ? 2.0 + opts.c.d.g
 
 
--- | The test suite :-P
 main ∷ Effect Unit
 main = do
   let
