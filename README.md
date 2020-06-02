@@ -17,7 +17,7 @@ Thanks to this simplification I'm able somewhat accept also polymorphic value in
 
 ## Status
 
-I'm still working on nice API related to accessing nested fields and providing more and more instances for common types to improve error messages.
+*WIP* I'm still working on nice API related to accessing nested fields and providing more and more instances for common types to improve error messages.
 
 <!--
 But let's talk about the basics. The basic idea in `oneof` is to provide type safe casting for values of types which are members of "untagged union" type (like in _TypeScript_).
