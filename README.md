@@ -33,7 +33,7 @@ When we extend union idea to the `Record` type (we are handing only these kind o
 
 ```purescript
 
--- | An API author specifies precisely a record with fields which are Optional.
+-- | An API author specifies precisely a record type with all the fields which are optional (wrapped in `Undef`).
 type Options =
   { a ∷ String
   , b ∷ Undef Number
@@ -45,14 +45,17 @@ type Options =
     }
   }
 
--- | By providing a clear constraint over
+-- | We provide this constraint just for readbility reasons.
+-- | If you don't use `CoerceUndefinedProps'` "class alias"
+-- | don't be surprised when compiler will infer something
+-- | a bit more intimidating here :-P
 consumer ∷ ∀ r. CoerceUndefinedProps' r Options ⇒ r → Number
 consumer r =
   let
     opts = coerceVia (Proxy ∷ Proxy Options) r
   in
-    -- | Now we can use optional fields which gives as back a value
-    -- | of type `Undef a` which can be unwrapped when default value is provided.
+    -- | After coercing we can use optional fields which gives us back a value
+    -- | of type `Undef a`. This can be unwrapped with `?` when default value is provided.
     opts.b ? 2.0 + opts.c.d.g
 
 
@@ -60,7 +63,7 @@ consumer r =
 main ∷ Effect Unit
 main = do
   let
-    -- | User can provide a record without optional fields
+    -- | Now our user can provide a minimal record without the optional fields if desires.
     result = consumer
       { a: "test"
       , c:
@@ -69,7 +72,6 @@ main = do
         }
       }
   logShow result
-
 ```
 
 
