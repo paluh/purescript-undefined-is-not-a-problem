@@ -4,18 +4,8 @@ Handling optional record fields through first class `undefined` value and typesa
 
 ## About
 
-This idea was ripped `oneof` library by @jvliwanag. I've narrowed it down only optional fields so it is somewhat possible to handle polymorphic types in a provided value.
-
-But let's talk about the basics. The basic idea in `oneof` is to provide type safe casting for values of types which are members of "untagged union" type (like in _TypeScript_).
-
-T.B.C.
-
-<!--
-When I say value of type like `Int |+| String |+| Number` we state that any value which is an `Int` a `String` or a `Number`. we can safely cast value of for example type `Number` to this.
-
-When we extend union idea to the `Record` type (we are handing only these kind of unions here) we can nicely handle optional fields.
--->
-
+This idea was ripped from `oneof` library by @jvliwanag. I've narrowed it down to handle only optional fields in records.
+Thanks to this simplification I'm able somewhat accept also polymorphic value in a provided record. There is an additional cost to this approach as coercing requires a `Proxy` value with the expected record type to do coercing. I don't think that is a problem because we want to improve the user experience and library authors or codegen tools should handle this additional requirement easily.
 
 # Objectives
 
@@ -28,6 +18,16 @@ When we extend union idea to the `Record` type (we are handing only these kind o
 ## Status
 
 I'm still working on nice API related to accessing nested fields and providing more and more instances for common types to improve error messages.
+
+<!--
+But let's talk about the basics. The basic idea in `oneof` is to provide type safe casting for values of types which are members of "untagged union" type (like in _TypeScript_).
+
+T.B.C.
+
+When I say value of type like `Int |+| String |+| Number` we state that any value which is an `Int` a `String` or a `Number`. we can safely cast value of for example type `Number` to this.
+
+When we extend union idea to the `Record` type (we are handing only these kind of unions here) we can nicely handle optional fields.
+-->
 
 ## Usage
 
@@ -71,3 +71,5 @@ main = do
   logShow result
 
 ```
+
+
