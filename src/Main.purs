@@ -3,9 +3,9 @@ module Main where
 
 import Data.List (List)
 import Data.Maybe (Maybe(..))
-import Prim.RowList (Cons) as RowList
+import Prim.RowList (Cons, Nil) as RowList
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
-import Prim.TypeError (class Fail, Beside, QuoteLabel, Text)
+import Prim.TypeError (class Fail, Beside, Quote, QuoteLabel, Text, kind Doc)
 import Type.Eval (class Eval)
 import Type.Eval.RowList (ToRow)
 import Type.Prelude (class ListToRow, Proxy(..), RLProxy(..))
@@ -21,30 +21,75 @@ foreign import data UndefinedOr ∷ Type → Type
 -- |
 -- | Please check:
 -- | https://github.com/jvliwanag/purescript-oneof/issues/6
-class CoerceUndefinedProp a b c | a b → c
+class CoerceUndefinedProp a b c (debugPath ∷ SList) | a b → c
 
-instance coerceUndefinedPropU ∷ (CoerceUndefinedProp a b c) ⇒ CoerceUndefinedProp (UndefinedOr a) (UndefinedOr b) (UndefinedOr c)
-else instance coerceUndefinedPropPolyProp ∷ (CoerceUndefinedProp a b c) ⇒ CoerceUndefinedProp a (UndefinedOr b) (UndefinedOr c)
-else instance coerceUndefinedPropRecord ∷ (RowToList r rl, RowToList r' rl', RowToList r'' rl'', CoerceUndefinedProps rl rl' rl'') => CoerceUndefinedProp { | r } { | r' } { | r'' }
-else instance coerceUndefinedPropPoly ∷ CoerceUndefinedProp a b a
+instance coerceUndefinedPropU ∷ (CoerceUndefinedProp a b c p) ⇒ CoerceUndefinedProp (UndefinedOr a) (UndefinedOr b) (UndefinedOr c) p
+else instance coerceUndefinedPropPolyProp ∷ (CoerceUndefinedProp a b c p) ⇒ CoerceUndefinedProp a (UndefinedOr b) (UndefinedOr c) p
+else instance coerceUndefinedPropRecord ∷ (RowToList r rl, RowToList r' rl', RowToList r'' rl'', CoerceUndefinedProps rl rl' rl'' p) => CoerceUndefinedProp { | r } { | r' } { | r'' } p
 
-class CoerceUndefinedProps (ra ∷ RowList) (rb ∷ RowList) (rc ∷ RowList) | ra rb → rc
+-- | These instances are provided only for nice debuging experience and for known monomorphic types.
+else instance coerceUndefinedPropStringMatch ∷ CoerceUndefinedProp String String String p
+else instance coerceUndefinedPropStringMistmatch
+  ∷ (RenderPath p p', Fail (Text "Type mistmatch on the path: " <> p'))
+  ⇒ CoerceUndefinedProp a String a p
+
+else instance coerceUndefinedPropIntMatch ∷ CoerceUndefinedProp Int Int Int p
+else instance coerceUndefinedPropIntMistmatch
+  ∷ (RenderPath p p', Fail (Text "Type mistmatch on the path: " <> p'))
+  ⇒ CoerceUndefinedProp a Int a p
+
+else instance coerceUndefinedPropNumberMatch ∷ CoerceUndefinedProp Number Number Number p
+else instance coerceUndefinedPropNumberMistmatch
+  ∷ (RenderPath p p', TypeMismatchErr p Number a msg, Fail msg)
+  ⇒ CoerceUndefinedProp a Number x p
+
+else instance coerceUndefinedPropBooleanMatch ∷ CoerceUndefinedProp Boolean Boolean Boolean p
+else instance coerceUndefinedPropBooleanMistmatch
+  ∷ (RenderPath p p', TypeMismatchErr p Boolean a msg, Fail msg)
+  ⇒ CoerceUndefinedProp a Boolean x p
+
+else instance coerceUndefinedPropPoly ∷ CoerceUndefinedProp a b a p
+
+infixr 2 type Beside as <>
+
+foreign import kind SList
+foreign import data SCons :: Symbol -> SList -> SList
+foreign import data SNil :: SList
+
+infixr 6 type SCons as :::
+
+class RenderPath (path ∷ SList) (render ∷ Doc) | path → render
+instance renderPathEnd ∷ RenderPath SNil (Text "")
+else instance renderPathLast ∷ RenderPath (n ::: SNil) (QuoteLabel n)
+else instance renderPathSegment ∷ (RenderPath tail p ) ⇒ RenderPath (segment ::: tail) (p <> Text "." <> QuoteLabel segment)
+
+class CoerceUndefinedProps (ra ∷ RowList) (rb ∷ RowList) (rc ∷ RowList) (debugPath ∷ SList) | ra rb → rc, ra → debugPath
+
+class TypeMismatchErr (path ∷ SList) expected got (msg ∷ Doc) | path expected got → msg
+instance typeMismatchErr
+  ∷ (RenderPath p p')
+  ⇒ TypeMismatchErr p expected got
+      ( Text "Type mistmatch on the path: { " <> p'
+      <> Text " }. Expecting a " <> Quote expected
+      <> Text " but got " <> Quote got <> Text "."
+      )
+
 
 instance coerceUndefinedPropsNil
-  ∷ CoerceUndefinedProps Nil Nil Nil
+  ∷ CoerceUndefinedProps Nil Nil Nil any
 else instance coerceUndefinedPropsCons
-  ∷ (CoerceUndefinedProp a b c, CoerceUndefinedProps t t' t'') ⇒ CoerceUndefinedProps (Cons n a t) (Cons n b t') (Cons n c t'')
+  ∷ (CoerceUndefinedProp a b c (n ::: debugPath), CoerceUndefinedProps t t' t'' debugPath) ⇒ CoerceUndefinedProps (Cons n a t) (Cons n b t') (Cons n c t'') debugPath
 else instance coerceUndefinedPropsConsU
-  ∷ (CoerceUndefinedProps t t' t'') ⇒ CoerceUndefinedProps t (Cons n (UndefinedOr a) t') (Cons n (UndefinedOr a) t'')
+  ∷ (CoerceUndefinedProps t t' t'' debugPath) ⇒ CoerceUndefinedProps t (Cons n (UndefinedOr a) t') (Cons n (UndefinedOr a) t'') debugPath
 else instance coerceUndefinedPropsMissing
-  ∷ (Fail (Beside (Text "Missing required field: ") (QuoteLabel n)))
-  ⇒ CoerceUndefinedProps Nil (Cons n a t) b
+  ∷ (RenderPath (n ::: p) p', Fail (Text "Missing required field: " <> p'))
+  ⇒ CoerceUndefinedProps Nil (Cons n a t) b p
 else instance coerceUndefinedPropsUnexpected
-  ∷ ( Fail (Beside (Text "Unexpected field provided: ") (QuoteLabel n)))
-  ⇒ CoerceUndefinedProps (Cons n a t) r b
+  ∷ ( RenderPath (n ::: p) p', Fail (Text "Unexpected field provided: " <> p' ))
+  ⇒ CoerceUndefinedProps (Cons n a t) r b p
 
 class CoerceUndefinedPropsRL' (a ∷ # Type) (bl ∷ RowList) (b ∷ # Type) | bl → b
-instance coerceUndefinedPropsRL' ∷ (RowToList a al, ListToRow bl b, CoerceUndefinedProps al bl bl) => CoerceUndefinedPropsRL' a bl b
+instance coerceUndefinedPropsRL' ∷ (RowToList a al, ListToRow bl b, CoerceUndefinedProps al bl bl SNil) => CoerceUndefinedPropsRL' a bl b
 
 coerceVia' ∷ ∀ a b bl. ListToRow bl b ⇒ CoerceUndefinedProps' a b ⇒ RLProxy bl → { | a } → { | b }
 coerceVia' p = unsafeCoerce
@@ -76,7 +121,7 @@ x = coerceVia' (RLProxy ∷ RLProxy X) -- { b: "test" }
 
 
 class CoerceUndefinedProps' (a ∷ # Type) (b ∷ # Type)
-instance coerceUndefinedProps' ∷ (RowToList a al, RowToList b bl, CoerceUndefinedProps al bl bl) => CoerceUndefinedProps' a b
+instance coerceUndefinedProps' ∷ (RowToList a al, RowToList b bl, CoerceUndefinedProps al bl bl SNil) => CoerceUndefinedProps' a b
 
 coerceVia ∷ ∀ a b. CoerceUndefinedProps' a b ⇒ RProxy b → { | a } → { | b }
 coerceVia p = unsafeCoerce
@@ -84,7 +129,7 @@ coerceVia p = unsafeCoerce
 type Y =
   ( a ∷ String
   , b ∷ UndefinedOr Boolean
-  , z ∷ Int
+  , n ∷ { x ∷ { y ∷ UndefinedOr Boolean }}
   )
 
-y = coerceVia (RProxy ∷ RProxy Y)
+y = coerceVia (RProxy ∷ RProxy Y) { a : "test", n : { x : { y: 8 }}}
