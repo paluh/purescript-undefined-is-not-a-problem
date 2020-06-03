@@ -147,24 +147,36 @@ else instance coercePropEffect
 -- | These instances are provided only for nice debuging experience.
 
 else instance coercePropStringMatch ∷ CoerceProp String String p
-else instance coercePropStringMistmatch'
+else instance coercePropStringGivenMismatch
   ∷ (RenderPath p p', TypeMismatchErr String a p msg, Fail msg)
   ⇒ CoerceProp String a p
+else instance coercePropStringExpectedMismatch
+  ∷ (RenderPath p p', TypeMismatchErr String a p msg, Fail msg)
+  ⇒ CoerceProp a String p
 
 else instance coercePropIntMatch ∷ CoerceProp Int Int p
-else instance coercePropIntMistmatch
+else instance coercePropIntGivenMismatch
   ∷ (RenderPath p p', TypeMismatchErr Int a p msg, Fail msg)
   ⇒ CoerceProp Int a p
+else instance coercePropIntExpectedMismatch
+  ∷ (RenderPath p p', TypeMismatchErr a Int p msg, Fail msg)
+  ⇒ CoerceProp a Int p
 
 else instance coercePropNumberMatch ∷ CoerceProp Number Number p
-else instance coercePropNumberMistmatch
+else instance coercePropNumberGivenMismatch
   ∷ (RenderPath p p', TypeMismatchErr Number a p msg, Fail msg)
   ⇒ CoerceProp Number a p
+else instance coercePropNumberExpectedMismatch
+  ∷ (RenderPath p p', TypeMismatchErr a Number p msg, Fail msg)
+  ⇒ CoerceProp a Number p
 
 else instance coercePropBooleanMatch ∷ CoerceProp Boolean Boolean p
-else instance coercePropBooleanMistmatch
+else instance coercePropBooleanGivenMismatch
   ∷ (RenderPath p p', TypeMismatchErr Boolean a p msg, Fail msg)
   ⇒ CoerceProp Boolean a p
+else instance coercePropBooleanExpectedMismatch
+  ∷ (RenderPath p p', TypeMismatchErr a Boolean p msg, Fail msg)
+  ⇒ CoerceProp a Boolean p
 
 -- else instance coercePropPoly ∷ CoerceProp a b b p
 
