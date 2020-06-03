@@ -32,7 +32,6 @@ import Prelude
 import Data.Undefined.NoProblem (class Coerce, coerceVia, Opt, (?), (!))
 import Effect (Effect)
 import Effect.Console (logShow)
-import Type.Prelude (Proxy(..))
 ```
 
 An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these values when using a function.
@@ -55,7 +54,7 @@ type Options =
 
 Below we provide a signature using handy and simple `Coerce` "class alias". If we skip this step and ask the compiler for infered type we can get a bit more expanded and intimidating signature here :-P
 
-Thanks to `Coerce` constraint we can use `coerceVia` which accepts `Proxy` with the expected type and safely coerces given value to it. It it is able to fill missing fields in a record with `Opt a` if that is part of the initial type.
+Thanks to `Coerce` constraint we can use `coerce` safely. It is able to fill missing fields in a record with `Opt a` if that is part of the initial type.
 
 We have some handy operators at our disposal:
 
@@ -64,11 +63,12 @@ We have some handy operators at our disposal:
   * a "pseudo bind": `? ∷ Opt a → (a → Opt b) → Opt b` opertor which allows us to dive for example into optional record values.
 
 ```purescript
+-- | This signature is optional in this case
 consumer ∷ ∀ r. Coerce r Options ⇒ r → Number
 consumer r =
   let
-    -- | Now opts is an `Option` value
-    opts = coerceVia (Proxy ∷ Proxy Options) r
+    -- | We should provide an info to which type we try to coerce
+    opts = coerce r ∷ Options
 
     -- | We can access and traverse optional values using "pseudoBind" function
     g = opts.c ? _.d.e ? _.g ! 0.0
@@ -79,8 +79,8 @@ consumer r =
 Now we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
 
 ```purescript
-main ∷ Effect Unit
-main = do
+recordCoerce ∷ Effect Unit
+recordCoerce = do
   let
     argument =
        { a: "test"
@@ -92,21 +92,26 @@ main = do
 
     result = consumer argument
   logShow result
+
 ```
+
 
 ## Limitiation
 
-Currently coercing strategy taken in this lib closes its main instance chain by passing unmatched type to the compiler. By doing this I'm able to handle polymorphic types without failing. In other words I'm able to coerce this:
+There is an inherent problem with coercing polymorphic types. So when the user provides `Nothing`, `[]` as a part of argument these pieces require annotations.
 
+```purescript
+type Options2 = { x :: Opt (Array Int) }
+
+nonPolymorphicArray ∷ Effect Unit
+nonPolymorphicArray = do
+  let
+    -- | This `Array Int` signature is required
+    argument = { x: [] ∷ Array Int }
+
+  logShow $ (coerce argument ∷ Options2)
 ```
-coerceVia (Proxy :: Proxy (Maybe Int)) (Nothing :: forall a. Maybe a)
-```
 
-I could take different path and not close the instance chain but then all such cases like `Nothing`, `[]` etc. would require annotations. On the other hand this could possibly allow extending `Coerce` chain for your types.
-
-I can also duplicate the whole stuff and provide two versions of coercing :-)
-
-Please let me know what do you think.
 
 
 <!--

@@ -3,7 +3,9 @@ module Test.Main where
 import Prelude
 
 import Effect (Effect)
-import Test.README (main) as Test.README
+import Test.README (polymorphicArray, recordCoerce) as Test.README
 
 main ∷ Effect Unit
-main = Test.README.main
+main = do
+  Test.README.recordCoerce
+  Test.README.polymorphicArray
