@@ -134,7 +134,7 @@ I try to provide some debug info which should help when there is a type mismatch
   type NestedError =
     { l :: Array { x :: Opt Int, y :: Int, z :: Opt (Array  Int)}}
 
-  x = (coerce { l: [{ y: 9, z: [] }]}) :: NestedError
+  x = coerce { l: [{ y: 9, z: [] }]} :: NestedError
   ```
 
 and we can get quite informative error message with property path like:
