@@ -45,7 +45,7 @@ type Options =
       { e ∷ Opt
         { f ∷ Opt String
         , g ∷ Opt Number
-        , h ∷ Int
+        , h ∷ String
         }
       }
     }
@@ -85,7 +85,7 @@ main = do
        { a: "test"
        , c:
          { d:
-           { e: { g: 8.0, h: 8 }}
+           { e: { g: 8.0, h: "test" }}
          }
        }
 
