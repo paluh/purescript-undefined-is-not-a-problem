@@ -136,7 +136,7 @@ nonPolymorphicArray = do
 
 ### Debugging
 
-I try to provide some debug info which should help when there is a type mismatch.
+I try to provide some debug info which should help when there is a type mismatch. For example this kind of polymorphic array causes problem
 
   ```purescript
   type NestedError =
@@ -145,7 +145,7 @@ I try to provide some debug info which should help when there is a type mismatch
   x = (coerce { l: [{ y: 9, z: [] }]}) :: NestedError
   ```
 
-we can get quite informative error message with property path like:
+and we can get quite informative error message with property path like:
 
   ```shell
   Type mismatch on the path: { l."Array".z."Array" }. Expecting
