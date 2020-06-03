@@ -49,14 +49,6 @@ pseudoBind a f = if isUndefined (unsafeCoerce a ∷ Foreign)
 
 infixl 9 pseudoBind as ?
 
--- | This is less elegant than Coercible from purescript-oneof
--- | but handles polymorphic types by "pushing" them
--- | to the result row to avoid matching failure with a known
--- | expected type.
--- |
--- | Please check for some details:
--- | https://github.com/jvliwanag/purescript-oneof/issues/6
-
 class CoerceProps
   (given ∷ RowList) (expected ∷ RowList) (debugPath ∷ SList)
   | given → debugPath
