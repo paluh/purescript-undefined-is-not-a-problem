@@ -71,7 +71,8 @@ consumer r =
     -- | We should provide an info to which type we try to coerce
     opts = coerce r ∷ Options
 
-    -- | We can access and traverse optional values using "pseudoBind" function
+    -- | We can access and traverse optional values using "pseudoBind" function.
+    -- | Side note: we can also close such a chain with `# toMaybe` easily.
     g = opts.c ? _.d.e ? _.g ! 0.0
   in
     opts.b ! 0.0 + g
@@ -96,7 +97,7 @@ recordCoerce = do
 
 ```
 
-It is worth nothing that optional field value is just a value. Its type is extended with `undefined`. There are an constructor provided by the lib: `opt ∷ ∀ a. a → Opt a` and `undefined ∷ ∀ a. Opt a`.
+It is worth nothing that optional field value is just a value. Its type is extended with `undefined`. There are two constructor provided for `Opt`: `opt ∷ ∀ a. a → Opt a` and `undefined ∷ ∀ a. Opt a`.
 
 You can build and pass these values down to the finall consumers or build arguments step by step on the way etc.
 
