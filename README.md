@@ -12,14 +12,6 @@ I've narrowed this idea down to handle only unions with `undefined` type. I real
 
 I'm about to publish. I want to use this lib in a larger project before so I would know if the API is usable enough.
 
-## Objectives
-
-- [x] Expose as simple as possible API for optional fields definition. Provide single type, single constraint and single coercing function.
-
-- [x] Provide good error messages when possible. Provide "value path" when detecting a mismatch in nested types.
-
-- [x] Handle parameter coercing for common types. Corce types inside `Array`, `Maybe`, `Either`, `Tuple` and `Effect`.
-
 ## Usage
 
 Let me start with imports. This is a literate Purescript example (run as a part of test suite) so we need them.
