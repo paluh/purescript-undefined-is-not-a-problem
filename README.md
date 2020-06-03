@@ -6,7 +6,7 @@ Handling optional record fields by using first class `undefined` (`undefined | a
 
 The main idea behind this lib was taken from [`oneof` library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all credits should go to him. `oneof` provides a really interesting implementation of the untagged unions for PureScript.
 
-I've narrowed this idea down to handle only unions with `undefined` type and focus on optional record fields handling here.
+I've narrowed this idea down to handle only unions with `undefined` type. I really focus on optional record fields handling here.
 
 ## Status
 
