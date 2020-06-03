@@ -29,9 +29,10 @@ module Test.README where
 
 import Prelude
 
-import Data.Undefined.NoProblem (class Coerce, coerce, Opt, (?), (!))
+import Data.Undefined.NoProblem (class Coerce, coerce, opt, Opt, undefined, (?), (!))
 import Effect (Effect)
 import Effect.Console (logShow)
+import Effect.Random (random)
 ```
 
 An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these values when using a function.
@@ -93,6 +94,26 @@ recordCoerce = do
     result = consumer argument
   logShow result
 
+```
+
+It is worth nothing that optional field value is just a value. Its type is extended with `undefined`. There are an constructor provided by the lib: `opt ∷ ∀ a. a → Opt a` and `undefined ∷ ∀ a. Opt a`.
+
+You can build and pass these values down to the finall consumers or build arguments step by step on the way etc.
+
+```purescript
+optValues = do
+  -- | Under some circumstances we want
+  -- | to setup part of the record
+  setup ← (_ < 0.5) <$> random
+
+  let
+    -- | I could just use `coerce { ... }` below but let me
+    -- | introduce `opt` constructor here.
+    { b, g } = if setup
+      then { b: opt 20.0, g: opt 25.0 }
+      else { b: undefined, g: undefined }
+
+  logShow $ consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}}
 ```
 
 

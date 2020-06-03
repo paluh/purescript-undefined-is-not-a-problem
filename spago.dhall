@@ -9,6 +9,7 @@ You can edit this file as you like.
   , "foreign"
   , "prelude"
   , "psci-support"
+  , "random"
   , "typelevel-prelude"
   , "unsafe-coerce"
   ]
