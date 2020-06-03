@@ -43,14 +43,14 @@ type Options =
   , c ∷ Opt
     { d ∷
       { e ∷ Opt
-        { f ∷ String
+        { f ∷ Opt String
         , g ∷ Opt Number
+        , h ∷ Int
         }
       }
     }
   }
 ```
-
 
 Below we provide a signature using handy and simple `Coerce` "class alias". If we skip this step and ask the compiler for infered type we can get a bit more expanded and intimidating signature here :-P
 
@@ -85,7 +85,7 @@ main = do
        { a: "test"
        , c:
          { d:
-           { e: { g: 8.0, f: "" }}
+           { e: { g: 8.0, h: 8 }}
          }
        }
 
