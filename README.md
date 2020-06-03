@@ -29,7 +29,7 @@ module Test.README where
 
 import Prelude
 
-import Data.Undefined.NoProblem (class Coerce, coerceVia, Opt, (?), (!))
+import Data.Undefined.NoProblem (class Coerce, coerce, Opt, (?), (!))
 import Effect (Effect)
 import Effect.Console (logShow)
 ```
@@ -98,10 +98,10 @@ recordCoerce = do
 
 ## Limitiation
 
-There is an inherent problem with coercing polymorphic types. So when the user provides `Nothing`, `[]` as a part of argument these pieces require annotations.
+There is an inherent problem with coercing polymorphic types. So when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
 
 ```purescript
-type Options2 = { x :: Opt (Array Int) }
+type OptionsWithAnArray = { x :: Opt (Array Int) }
 
 nonPolymorphicArray ∷ Effect Unit
 nonPolymorphicArray = do
@@ -109,7 +109,7 @@ nonPolymorphicArray = do
     -- | This `Array Int` signature is required
     argument = { x: [] ∷ Array Int }
 
-  logShow $ (coerce argument ∷ Options2)
+  logShow $ (coerce argument ∷ OptionsWithAnArray)
 ```
 
 
