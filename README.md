@@ -118,7 +118,25 @@ optValues = do
   logShow $ consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}}
 ```
 
-Library provides some debug info which should help when there is a type mismatch.
+## Limitiations
+
+There is an inherent problem with coercing polymorphic types. So when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
+
+```purescript
+type OptionsWithAnArray = { x :: Opt (Array Int) }
+
+nonPolymorphicArray ∷ Effect Unit
+nonPolymorphicArray = do
+  let
+    -- | This `Array Int` signature is required
+    argument = { x: [] ∷ Array Int }
+
+  logShow $ (coerce argument ∷ OptionsWithAnArray)
+```
+
+### Debugging
+
+I try to provide some debug info which should help when there is a type mismatch.
 
   ```purescript
   type NestedError =
@@ -136,24 +154,10 @@ we can get quite informative error message with property path like:
 
   but got
 
-  String
+  t2
   ```
 
-## Limitiation
-
-There is an inherent problem with coercing polymorphic types. So when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
-
-```purescript
-type OptionsWithAnArray = { x :: Opt (Array Int) }
-
-nonPolymorphicArray ∷ Effect Unit
-nonPolymorphicArray = do
-  let
-    -- | This `Array Int` signature is required
-    argument = { x: [] ∷ Array Int }
-
-  logShow $ (coerce argument ∷ OptionsWithAnArray)
-```
+But of course I'm not able to cover all types and this kind of error handling is possible for well known types.
 
 
 
