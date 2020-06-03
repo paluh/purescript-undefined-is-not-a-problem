@@ -71,7 +71,7 @@ consumer r =
     -- | We can access and traverse optional values using "pseudoBind" function
     g = opts.c ? _.d.e ? _.g ! 0.0
   in
-    opts.b ! 2.0 + g
+    opts.b ! 0.0 + g
 ```
 
 No we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
@@ -84,7 +84,7 @@ main = do
        { a: "test"
        , c:
          { d:
-           { e: { f: "", g: 8.0 }}
+           { e: { g: 8.0, f: "" }}
          }
        }
 

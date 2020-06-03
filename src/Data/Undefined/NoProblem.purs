@@ -59,13 +59,23 @@ else instance coercePropsCons
 else instance coercePropsConsU
   ∷ (CoerceProps t t' t'' debugPath)
   ⇒ CoerceProps (Cons n (Opt a) t) t' (Cons n (Opt a) t'') debugPath
+else instance coercePropsMismatch
+  ∷ ( RenderPath p p'
+    , Fail
+      ( Text "Field mismatch on the path " <> p'
+      |> Text ""
+      |> Text "  * Maybe you have skipped required field: " <> QuoteLabel n <> Text " ?"
+      |> Text ""
+      |> Text "  * Maybe you have provided an extra field: " <> QuoteLabel m <> Text " ?"
+      )
+    )
+  ⇒ CoerceProps (Cons n a x) (Cons m b y) z p
 else instance coercePropsMissing
   ∷ ( RenderPath (n ::: p) p'
     , Fail
-      ( Text "Missing required field: "
-      <> QuoteLabel n
-      |> Text "The full path is: "
-      <> p'
+      ( Text "Missing required field: " <> QuoteLabel n
+      |> Text ""
+      |> Text "The full path is: " <> p'
       )
     )
   ⇒ CoerceProps (Cons n a t) Nil x p
@@ -78,7 +88,7 @@ else instance coercePropsUnexpected
       <> p'
       )
     )
-  ⇒ CoerceProps r (Cons n a t) x p
+  ⇒ CoerceProps Nil (Cons n a t) x p
 
 
 -- | Check if given type can be coerced safely to the expected one.
