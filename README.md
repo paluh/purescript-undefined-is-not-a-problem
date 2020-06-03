@@ -75,7 +75,7 @@ consumer r =
     opts.b ! 0.0 + g
 ```
 
-No we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
+Now we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
 
 ```purescript
 main ∷ Effect Unit
