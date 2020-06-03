@@ -4,13 +4,23 @@ Handling optional record fields by using first class `undefined` value and types
 
 ## About
 
-The crucial idea was ripped from [`oneof` library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) which is really interesting implementation for untagged unions for PureScript. I've narrowed it down to handle only optional fields in records.
+The main idea behind this lib was taken from [`oneof` library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) which is really interesting implementation for untagged unions for PureScript. I've narrowed it down to handle only unions with `Undefined` and focus on optional fields in records really.
 
-Thanks to this simplification I'm able accept polymorphic values in a provided record. There is an additional cost to this approach as coercing requires a `Proxy` value with the expected record type to do coercing. I don't think that is a problem because we want to improve the user experience and library authors or codegen tools should handle this additional requirement easily.
+## Objectives
+
+  [v] Expose as simple as possible API for optional fields definition. Provide single type, single constraint and single coercing function.
+
+  [v] Provide good error messages when possible. Provide "value path" when detecting a mismatch in nested types.
+
+  [v] Handle parameter coercing for common types. Corce types inside `Array`, `Maybe`, `Either`, `Tuple` and `Effect`.
+
+## Status
+
+Nearly published... I want to use it in a larger context to proof that API is usable enough.
 
 ## Usage
 
-Imports. This is a literate Purescript example (run as a part of test suite) so we need them here.
+Let me start with imports. This is a literate Purescript example (run as a part of test suite) so we need them.
 
 ```purescript
 module Test.README where
@@ -23,7 +33,7 @@ import Effect.Console (logShow)
 import Type.Prelude (Proxy(..))
 ```
 
-An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so user can skip these values when using a function.
+An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these values when using a function.
 
 ```purescript
 type Options =
@@ -31,32 +41,40 @@ type Options =
   , b ∷ Opt Number
   , c ∷ Opt
     { d ∷
-      { e ∷ Opt { f ∷ String, g ∷ Opt Number }
-      , g ∷ Number
+      { e ∷ Opt
+        { f ∷ String
+        , g ∷ Opt Number
+        }
       }
     }
   }
 ```
 
 
-Below we provide a signature using handy and simple `Coerce` "class alias". If we skip this step and ask the compiler for it we can get a bit more expanded and intimidating type signature here :-P
+Below we provide a signature using handy and simple `Coerce` "class alias". If we skip this step and ask the compiler for infered type we can get a bit more expanded and intimidating signature here :-P
 
-Thanks to `Coerce` constraint we can use `coerceVia` which accepts `Proxy` with the expected type and safely coerces given value to it. It can feel missing fields in a record with `Opt a` if that is part of the initial type.
+Thanks to `Coerce` constraint we can use `coerceVia` which accepts `Proxy` with the expected type and safely coerces given value to it. It it is able to fill missing fields in a record with `Opt a` if that is part of the initial type.
 
-We have some handy operators at our disposal `! ∷ Opt a → a → a` and "pseudo bind" `? ∷ Opt a → (a → Opt b) → Opt b` opertor which allows us to dive for example into optional record fields.
+We have some handy operators at our disposal:
+
+  * a value accessor `! ∷ Opt a → a → a` which expects a default value
+
+  * a "pseudo bind": `? ∷ Opt a → (a → Opt b) → Opt b` opertor which allows us to dive for example into optional record values.
 
 ```purescript
 consumer ∷ ∀ r. Coerce r Options ⇒ r → Number
 consumer r =
   let
+    -- | Now opts is an `Option` value
     opts = coerceVia (Proxy ∷ Proxy Options) r
 
-    g = opts.c ? _.d.e ? _.g ! 8.0
+    -- | We can access and traverse optional values using "pseudoBind" function
+    g = opts.c ? _.d.e ? _.g ! 0.0
   in
     opts.b ! 2.0 + g
 ```
 
-No we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
+No we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
 
 ```purescript
 main ∷ Effect Unit
@@ -66,21 +84,11 @@ main = do
        { a: "test"
        , c:
          { d:
-           { g: 8.0 }
+           { e: { f: "", g: 8.0 }}
          }
        }
-```
 
-but we can still use it with `consumer` function without problems:
-
-```
-    result = consumer
-      { a: "test"
-      , c:
-        { d:
-          { g: 8.0 }
-        }
-      }
+    result = consumer argument
   logShow result
 ```
 
@@ -113,20 +121,6 @@ Of course the above won't typecheck and compile but it is not important. The thi
   ```
 -->
 
-
-## Objectives
-
-  [v] Expose as simple as possible API for optional fields definition (single constraint) which tries to handle polymorphic values in the provided `Record`.
-
-  [v] Provide good error messages when possible (on netsted types mistatch).
-
-  [v] Handle nested coercing for common types - we corce types inside `Array`, `Maybe`, `Either`, `Tuple` and `Effect`).
-
-  [v] Provide a nice way to access nested optional fields (no idea at the moment).
-
-## Status
-
-Nearly published... I want to use it in a larger context befor pushing to the registry.
 
 <!--
 But let's talk about the basics. The basic idea in `oneof` is to provide type safe casting for values of types which are members of "untagged union" type (like in _TypeScript_).

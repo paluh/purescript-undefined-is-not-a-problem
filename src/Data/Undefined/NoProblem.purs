@@ -23,7 +23,7 @@ fromOpt undef default = if isUndefined (unsafeCoerce undef ∷ Foreign)
   then default
   else unsafeCoerce undef
 
-infixr 8 fromOpt as !
+infixl 9 fromOpt as !
 
 -- | This is not dedicated for providing `bind`.
 -- | It is only to provide nice operator:
