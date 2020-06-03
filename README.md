@@ -110,8 +110,7 @@ optValues = do
 
   let
     { b, g } = if setup
-      -- | Could be also done with `coerce` but we need somewhere
-      -- | signature or full type.
+      -- | Could be also done with `coerce`.
       then { b: opt 20.0, g: opt 25.0 }
       -- | Could be also `coerce { }`.
       else { b: undefined, g: undefined }
