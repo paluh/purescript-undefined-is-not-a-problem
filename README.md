@@ -118,6 +118,26 @@ optValues = do
   logShow $ consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}}
 ```
 
+Library provides some debug info which should help when there is a type mismatch.
+
+  ```purescript
+  type NestedError =
+    { l :: Array { x :: Opt Int, y :: Int, z :: Opt (Array  Int)}}
+
+  x = (coerce { l: [{ y: 9, z: [] }]}) :: NestedError
+  ```
+
+we can get quite informative error message with property path like:
+
+  ```shell
+  Type mismatch on the path: { l."Array".z."Array" }. Expecting
+
+  Int
+
+  but got
+
+  String
+  ```
 
 ## Limitiation
 

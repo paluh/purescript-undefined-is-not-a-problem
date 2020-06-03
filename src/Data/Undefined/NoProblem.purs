@@ -57,7 +57,7 @@ instance coercePropsNil
   ∷ CoerceProps Nil Nil any
 
 else instance coercePropsCons
-  ∷ (CoerceProp a b (n ::: debugPath))
+  ∷ (CoerceProp a b (n ::: debugPath), CoerceProps t t' debugPath)
   ⇒ CoerceProps (Cons n a t) (Cons n b t') debugPath
 
 -- | Handle missing field using Opt
@@ -108,15 +108,18 @@ class CoerceProp given expected (debugPath ∷ SList) | expected → debugPath
 -- -- |
 -- -- | The rest is handling errors and providing intances
 -- -- | for well known polymorphic types like `Maybe`, `Either`...
-instance coercePropOptValue
+instance coercePropOptValues
   ∷ (CoerceProp a b p)
   ⇒ CoerceProp (Opt a) (Opt b) p
-else instance coercePropValue
+else instance coercePropOptValue
   ∷ (CoerceProp a b p)
   ⇒ CoerceProp a (Opt b) p
 else instance coercePropRecord
-  ∷ (RowToList e el, RowToList g gl, CoerceProps el gl p)
-  ⇒ CoerceProp { | e } { | g } p
+  ∷ (RowToList e el, RowToList g gl, CoerceProps gl el p)
+  ⇒ CoerceProp { | g } { | e } p
+
+else instance coercePropMatch
+  :: CoerceProp a a p
 
 -- | These instances are provided to allow coercing over popular types
 
@@ -146,37 +149,33 @@ else instance coercePropEffect
 
 -- | These instances are provided only for nice debuging experience.
 
-else instance coercePropStringMatch ∷ CoerceProp String String p
-else instance coercePropStringGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr String a p msg, Fail msg)
-  ⇒ CoerceProp String a p
-else instance coercePropStringExpectedMismatch
-  ∷ (RenderPath p p', TypeMismatchErr String a p msg, Fail msg)
-  ⇒ CoerceProp a String p
-
-else instance coercePropIntMatch ∷ CoerceProp Int Int p
-else instance coercePropIntGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr Int a p msg, Fail msg)
-  ⇒ CoerceProp Int a p
 else instance coercePropIntExpectedMismatch
   ∷ (RenderPath p p', TypeMismatchErr a Int p msg, Fail msg)
   ⇒ CoerceProp a Int p
+else instance coercePropIntGivenMismatch
+  ∷ (RenderPath p p', TypeMismatchErr Int a p msg, Fail msg)
+  ⇒ CoerceProp Int a p
 
-else instance coercePropNumberMatch ∷ CoerceProp Number Number p
-else instance coercePropNumberGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr Number a p msg, Fail msg)
-  ⇒ CoerceProp Number a p
+else instance coercePropStringExpectedMismatch
+  ∷ (RenderPath p p', TypeMismatchErr a String p msg, Fail msg)
+  ⇒ CoerceProp a String p
+else instance coercePropStringGivenMismatch
+  ∷ (RenderPath p p', TypeMismatchErr String a p msg, Fail msg)
+  ⇒ CoerceProp String a p
+
 else instance coercePropNumberExpectedMismatch
   ∷ (RenderPath p p', TypeMismatchErr a Number p msg, Fail msg)
   ⇒ CoerceProp a Number p
+else instance coercePropNumberGivenMismatch
+  ∷ (RenderPath p p', TypeMismatchErr Number a p msg, Fail msg)
+  ⇒ CoerceProp Number a p
 
-else instance coercePropBooleanMatch ∷ CoerceProp Boolean Boolean p
-else instance coercePropBooleanGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr Boolean a p msg, Fail msg)
-  ⇒ CoerceProp Boolean a p
 else instance coercePropBooleanExpectedMismatch
   ∷ (RenderPath p p', TypeMismatchErr a Boolean p msg, Fail msg)
   ⇒ CoerceProp a Boolean p
+else instance coercePropBooleanGivenMismatch
+  ∷ (RenderPath p p', TypeMismatchErr Boolean a p msg, Fail msg)
+  ⇒ CoerceProp Boolean a p
 
 -- else instance coercePropPoly ∷ CoerceProp a b b p
 
