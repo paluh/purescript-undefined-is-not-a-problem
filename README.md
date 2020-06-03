@@ -101,16 +101,18 @@ It is worth nothing that optional field value is just a value. Its type is exten
 You can build and pass these values down to the finall consumers or build arguments step by step on the way etc.
 
 ```purescript
+optValues :: Effect Unit
 optValues = do
   -- | Under some circumstances we want
   -- | to setup part of the record
   setup ← (_ < 0.5) <$> random
 
   let
-    -- | I could just use `coerce { ... }` below but let me
-    -- | introduce `opt` constructor here.
     { b, g } = if setup
+      -- | Could be also done with `coerce` but we need somewhere
+      -- | signature or full type.
       then { b: opt 20.0, g: opt 25.0 }
+      -- | Could be also `coerce { }`.
       else { b: undefined, g: undefined }
 
   logShow $ consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}}

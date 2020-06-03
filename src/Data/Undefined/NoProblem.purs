@@ -63,7 +63,7 @@ else instance coercePropsCons
 -- | Handle missing field using Opt
 else instance coercePropsConsU
   ∷ (CoerceProps t t' debugPath)
-  ⇒ CoerceProps t' (Cons n (Opt a) t) debugPath
+  ⇒ CoerceProps t (Cons n (Opt a) t') debugPath
 
 else instance coercePropsMismatch
   ∷ ( RenderPath p p'
@@ -88,7 +88,7 @@ else instance coercePropsMissing
   ⇒ CoerceProps Nil (Cons n a t) p
 
 else instance coercePropsUnexpected
-  ∷ ( RenderPath (n ::: p) p'
+  ∷ ( RenderPath p p'
     , Fail
       ( Text "Unexpected field provided: "
       <> QuoteLabel n
