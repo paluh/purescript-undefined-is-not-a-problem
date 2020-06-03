@@ -4,19 +4,20 @@ Handling optional record fields by using first class `undefined` value and types
 
 ## About
 
-The main idea behind this lib was taken from [`oneof` library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) which is really interesting implementation for untagged unions for PureScript. I've narrowed it down to handle only unions with `Undefined` and focus on optional fields in records really.
-
-## Objectives
-
-  [v] Expose as simple as possible API for optional fields definition. Provide single type, single constraint and single coercing function.
-
-  [v] Provide good error messages when possible. Provide "value path" when detecting a mismatch in nested types.
-
-  [v] Handle parameter coercing for common types. Corce types inside `Array`, `Maybe`, `Either`, `Tuple` and `Effect`.
+The main idea behind this lib was taken from [`oneof` library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) which is really interesting implementation for untagged unions for PureScript.
+I've narrowed this idea down to handle only unions with `undefined` type and focus on record optional field handling (nice compile time error messages etc.).
 
 ## Status
 
-Nearly published... I want to use it in a larger context to proof that API is usable enough.
+I'm about to publish. I want to use this lib in a larger context to proof that the API is usable enough.
+
+## Objectives
+
+- [x] Expose as simple as possible API for optional fields definition. Provide single type, single constraint and single coercing function.
+
+- [x] Provide good error messages when possible. Provide "value path" when detecting a mismatch in nested types.
+
+- [x] Handle parameter coercing for common types. Corce types inside `Array`, `Maybe`, `Either`, `Tuple` and `Effect`.
 
 ## Usage
 
