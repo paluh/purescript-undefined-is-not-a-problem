@@ -94,6 +94,20 @@ main = do
   logShow result
 ```
 
+## Limitiation
+
+Currently coercing strategy taken in this lib closes its main instance chain by passing unmatched type to the compiler. By doing this I'm able to handle polymorphic types without failing. In other words I'm able to coerce this:
+
+```
+coerceVia (Proxy :: Proxy (Maybe Int)) (Nothing :: forall a. Maybe a)
+```
+
+I could take different path and not close the instance chain but then all such cases like `Nothing`, `[]` etc. would require annotations. On the other hand this could possibly allow extending `Coerce` chain for your types.
+
+I can also duplicate the whole stuff and provide two versions of coercing :-)
+
+Please let me know what do you think.
+
 
 <!--
 ## The Problem
@@ -133,4 +147,5 @@ When I say value of type like `Int |+| String |+| Number` we state that any valu
 
 When we extend union idea to the `Record` type (we are handing only these kind of unions here) we can nicely handle optional fields.
 -->
+
 
