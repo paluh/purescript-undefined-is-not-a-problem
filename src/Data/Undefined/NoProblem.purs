@@ -1,8 +1,9 @@
 module Data.Undefined.NoProblem where
 
+import Prelude
 
 import Data.Either (Either)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple)
 import Effect (Effect)
 import Foreign (Foreign, isUndefined)
@@ -18,17 +19,27 @@ foreign import undefined ∷ ∀ a. Opt a
 opt ∷ ∀ a. a → Opt a
 opt = unsafeCoerce
 
-fromOpt ∷ ∀ a. Opt a → a → a
-fromOpt undef default = if isUndefined (unsafeCoerce undef ∷ Foreign)
+-- | Let's be consistent with `fromMaybe` args order here
+fromOpt ∷ ∀ a. a → Opt a → a
+fromOpt = flip fromOptFlipped
+
+fromOptFlipped ∷ ∀ a. Opt a → a → a
+fromOptFlipped undef default = if isUndefined (unsafeCoerce undef ∷ Foreign)
   then default
   else unsafeCoerce undef
 
-infixl 9 fromOpt as !
+infixl 9 fromOptFlipped as !
+
+toMaybe ∷ ∀ a. Opt a → Maybe a
+toMaybe undef = if isUndefined (unsafeCoerce undef ∷ Foreign)
+  then Nothing
+  else Just (unsafeCoerce undef)
 
 -- | This is not dedicated for providing `bind`.
+-- | We are not able to have `Monad` here.
+-- |
 -- | It is only to provide nice operator:
 -- | (coerce {}) ? _.a ? _.b ? _.c.d ! "default"
-
 
 pseudoBind :: forall t5 t6 t8. t6 -> (t5 -> Opt t8) -> Opt t8
 pseudoBind a f = if isUndefined (unsafeCoerce a ∷ Foreign)
