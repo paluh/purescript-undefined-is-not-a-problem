@@ -209,7 +209,7 @@ instance typeMismatchErr
       |> Text ""
       |> Quote given
       |> Text ""
-      |> Text "If one of the types above looks like a type variable like `t2` or `r172`"
+      |> Text "If one of the types above is a type variable like `t2` or `r172`"
       |> Text "it probably means that you should provide type annotation to some"
       |> Text "parts of your value (like `[] ∷ Array Int` or `Nothing ∷ Maybe String`)"
       )
