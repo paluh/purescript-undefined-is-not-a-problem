@@ -145,6 +145,10 @@ and we can get quite informative error message with property path like:
   but got
 
   t2
+
+  If one of the types above looks like a type variable like `t2`
+  it probably means that you should provide type annotation to some
+  parts of your value (like `[] ∷ Array Int` or `Nothing ∷ Maybe String` 
   ```
 
 But of course I'm not able to cover all types and this kind of error handling is possible for well known types.
