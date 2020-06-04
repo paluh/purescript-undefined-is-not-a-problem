@@ -14,7 +14,7 @@ I'm about to publish. I want to use this lib in a larger project before so I wou
 
 ## Usage
 
-Let me start with imports. This is a literate Purescript example (run as a part of test suite) so we need them.
+Let me start with imports. This is a literate PureScript example (run as a part of the test suite) so we need them.
 
 ```purescript
 module Test.README where
@@ -27,7 +27,7 @@ import Effect.Console (logShow)
 import Effect.Random (random)
 ```
 
-An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these values when using a function.
+An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these record properties when calling a function.
 
 ```purescript
 type Options =
@@ -45,9 +45,7 @@ type Options =
   }
 ```
 
-Below we provide a signature using handy and simple `Coerce` "class alias". If we skip this step and ask the compiler for infered type we can get a bit more expanded and intimidating signature here :-P
-
-Thanks to `Coerce` constraint we can use `coerce` safely. It is able to fill missing fields in a record with `Opt a` if that is part of the initial type.
+Thanks to the `Coerce` constraint we can use `coerce` safely. It is able to fill missing fields in a record with `Opt a` if that is part of the initial type.
 
 We have some handy operators at our disposal:
 
@@ -132,7 +130,7 @@ I try to provide some debug info which should help when there is a type mismatch
 
   ```purescript
   type NestedError =
-    { l :: Array { x :: Opt Int, y :: Int, z :: Opt (Array  Int)}}
+    { l :: Array { x :: Opt Int, y :: Int, z :: Opt (Array  Int) }}
 
   x = coerce { l: [{ y: 9, z: [] }]} :: NestedError
   ```
