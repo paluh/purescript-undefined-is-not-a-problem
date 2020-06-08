@@ -14,7 +14,7 @@ I'm about to publish. I want to use this lib in a larger project before so I wou
 
 ## Usage
 
-There are two coercing strategies provided by this lib. Don't worry there are both easy to use and the distinction between them is quite simple. I'm going to discuss this difference along the way.
+There are two coercing strategies provided by this lib. Don't worry they are both easy to use and the distinction between them is quite simple. I'm going to discuss this difference along the way.
 
 Let me start with imports. This is a literate PureScript example (run as a part of the test suite) so we need them.
 
@@ -124,7 +124,9 @@ optValues = do
       (if setup then 45.0 else 0.0)
 ```
 
-### Limitiations of `Mono.coerce` approach
+### `Mono.coerce` approach
+
+#### Cons
 
 There is an inherent problem with coercing polymorphic types in this case. Internally I'm just not able to match a polymorphic type like `Maybe a` with expected type like `Maybe Int` and I'm not able to tell if this types are easily coercible.
 
@@ -142,15 +144,18 @@ openHandlingNonPolymorphicArray = do
   logShow $ (Mono.coerce argument ∷ OptionsWithPolymorphicValue)
 ```
 
-#### Pros of this approach
+#### Pros
 
 You can always provide an `Mono.Coerce` instance for your types and allow coercing of its "internals". Please check examples in the `NoProble.Mono` module where you can find instances for `Array`, `Maybe` etc.
 
 
 ### `NoProblem.Poly.*` approach
 
+
 In general most stuff from the previous sections is relevant here. The small difference is in the signature of the `Colsed.coerce` function as it expects also a `Proxy` value.
 Another difference is a signature of `Coerce` class. We have here three parameters `Coerce given expected result` because we are calculating a new type which can have some fields still polymorphic and value of this type is returned by the `coerce`.
+
+#### Pros
 
 When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example works now without annotation for the array in `x` prop:
 
@@ -167,9 +172,11 @@ closedHandlingNonPolymorphicArray = do
   logShow (r.x ! [8])
 ```
 
+#### Cons
+
 What is a bit funny is that prividing signature `Poly.Coerce` can be a bit tricky. We want to leave it really polyomrphic so compiler can unify types whenever it needs to :-)
 
-Hypothetically, because you can just easily skip this signature and `Result` type, you could provide a type anotation for previous `consumer` function like:
+Hypothetically, because you can just easily skip this signature and `Result` type, you could provide a type anotation for the previous `consumer` function like:
 
 ```purescript
 type Result c d e r =
@@ -199,15 +206,10 @@ anotatedPolyConsumer given =
     opts.b ! 0.0 + g
 ```
 
-But of course this signature would change if you start using other fields of the "`result`" value :-)
+But of course this signature would change if you start using other fields of `opts` in the body of the function :-)
 
-
-#### Limitiations
-
-In this approach when `Poly.Coerce` instances are not able to match type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler decides if the given type can be "unified" (so coercible too ;-)).
+Additional downside of `Poly.Coerce` is that you are not able to provide more instances for it. When builtin `Poly.Coerce` instances are not able to match a type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler can decide if the given type can be "unified" (so coercible too ;-).
 Because we are closing here an instance chain with this polymorphic case there is no way for you to provide additional instances.
-
-Additionally as pointed above it is hard to provide sensible signatures because we want to probably stay flexible and polymorphic.
 
 ### Debugging
 
@@ -237,7 +239,6 @@ and we can get quite informative compile time error message with property path l
   ```
 
 But of course I'm not able to cover all types and this kind of error handling is possible for well known types.
-
 
 
 <!--
