@@ -3,15 +3,23 @@ module Data.Undefined.NoProblem where
 import Prelude
 
 import Data.Either (Either)
+import Data.Eq (class Eq1, eq1)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Tuple (Tuple)
 import Effect (Effect)
-import Foreign (Foreign, isUndefined)
+import Foreign (Foreign)
+import Foreign (isUndefined) as Foreign
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Prim.TypeError (class Fail, Above, Beside, Quote, QuoteLabel, Text, kind Doc)
 import Unsafe.Coerce (unsafeCoerce)
 
 foreign import data Opt ∷ Type → Type
+instance eqOpt ∷ Eq a ⇒ Eq (Opt a) where
+  eq u1 u2 = toMaybe u1 == toMaybe u2
+instance eq1Opt ∷ Eq a ⇒ Eq1 Opt where
+  eq1 u1 u2 = eq1 (toMaybe u1) (toMaybe u2)
+instance ordOpt ∷ Ord a ⇒ Ord (Opt a) where
+  compare u1 u2 = toMaybe u1 `compare` toMaybe u2
 instance showOpt ∷ Show a ⇒ Show (Opt a) where
   show = maybe "undefined" ("Opt " <> _) <<< map show <<< toMaybe
 
@@ -25,159 +33,34 @@ fromOpt ∷ ∀ a. a → Opt a → a
 fromOpt = flip fromOptFlipped
 
 fromOptFlipped ∷ ∀ a. Opt a → a → a
-fromOptFlipped undef default = if isUndefined (unsafeCoerce undef ∷ Foreign)
+fromOptFlipped o default = if isUndefined o
   then default
-  else unsafeCoerce undef
+  else unsafeCoerce o
 
 infixl 9 fromOptFlipped as !
 
 toMaybe ∷ ∀ a. Opt a → Maybe a
-toMaybe undef = if isUndefined (unsafeCoerce undef ∷ Foreign)
+toMaybe o = if isUndefined o
   then Nothing
-  else Just (unsafeCoerce undef)
+  else Just (unsafeUnwrap o)
+
+isUndefined ∷ ∀ a. Opt a → Boolean
+isUndefined undef = Foreign.isUndefined (unsafeCoerce undef ∷ Foreign)
+
+unsafeUnwrap ∷ ∀ a. Opt a → a
+unsafeUnwrap = unsafeCoerce
 
 -- | This is not dedicated for providing `bind`.
 -- | We are not able to have `Monad` here.
 -- |
 -- | It is only to provide nice operator:
 -- | (coerce {}) ? _.a ? _.b ? _.c.d ! "default"
-
-pseudoBind :: forall t5 t6 t8. t6 -> (t5 -> Opt t8) -> Opt t8
-pseudoBind a f = if isUndefined (unsafeCoerce a ∷ Foreign)
+pseudoBind :: forall a b . Opt a -> (a -> Opt b) -> Opt b
+pseudoBind o f = if isUndefined o
   then undefined
-  else f (unsafeCoerce a)
+  else f (unsafeUnwrap o)
 
 infixl 9 pseudoBind as ?
-
-class CoerceProps
-  (given ∷ RowList) (expected ∷ RowList) (debugPath ∷ SList)
-  | given → debugPath
-
-instance coercePropsNil
-  ∷ CoerceProps Nil Nil any
-
-else instance coercePropsCons
-  ∷ (CoerceProp a b (n ::: debugPath), CoerceProps t t' debugPath)
-  ⇒ CoerceProps (Cons n a t) (Cons n b t') debugPath
-
--- | Handle missing field using Opt
-else instance coercePropsConsU
-  ∷ (CoerceProps t t' debugPath)
-  ⇒ CoerceProps t (Cons n (Opt a) t') debugPath
-
-else instance coercePropsMismatch
-  ∷ ( RenderPath p p'
-    , Fail
-      ( Text "Field mismatch on the path " <> p'
-      |> Text ""
-      |> Text "  * Maybe you have provided an extra field: " <> QuoteLabel n <> Text " ?"
-      |> Text ""
-      |> Text "  * Maybe you have skipped required field: " <> QuoteLabel m <> Text " ?"
-      )
-    )
-  ⇒ CoerceProps (Cons n b y) (Cons m a x) p
-
-else instance coercePropsMissing
-  ∷ ( RenderPath (n ::: p) p'
-    , Fail
-      ( Text "Missing required field: " <> QuoteLabel n
-      |> Text ""
-      |> Text "The full path is: " <> p'
-      )
-    )
-  ⇒ CoerceProps Nil (Cons n a t) p
-
-else instance coercePropsUnexpected
-  ∷ ( RenderPath p p'
-    , Fail
-      ( Text "Unexpected field provided: "
-      <> QuoteLabel n
-      |> Text "The full path is: "
-      <> p'
-      )
-    )
-  ⇒ CoerceProps (Cons n a t) Nil p
-
-
--- | Check if given type can be coerced safely to the expected one.
-class CoerceProp given expected (debugPath ∷ SList) | expected → debugPath
-
--- -- | The most important instances are these three
--- -- | and the last one which passes the type to the
--- -- | compiler for unification.
--- -- |
--- -- | The rest is handling errors and providing intances
--- -- | for well known polymorphic types like `Maybe`, `Either`...
-instance coercePropOptValues
-  ∷ (CoerceProp a b p)
-  ⇒ CoerceProp (Opt a) (Opt b) p
-else instance coercePropOptValue
-  ∷ (CoerceProp a b p)
-  ⇒ CoerceProp a (Opt b) p
-else instance coercePropRecord
-  ∷ (RowToList e el, RowToList g gl, CoerceProps gl el p)
-  ⇒ CoerceProp { | g } { | e } p
-
-else instance coercePropMatch
-  :: CoerceProp a a p
-
--- | These instances are provided to allow coercing over popular types
-
-else instance coercePropArray
-  ∷ (CoerceProp a b ("Array" ::: p))
-  ⇒ CoerceProp (Array a) (Array b) p
-
-else instance coercePropMaybe
-  ∷ (CoerceProp a b ("Maybe" ::: p))
-  ⇒ CoerceProp (Maybe a) (Maybe b) p
-
-else instance coercePropEither
-  ∷ ( CoerceProp a1 b1 ("Either.Left" ::: p)
-    , CoerceProp a2 b2 ("Either.Right" ::: p)
-    )
-  ⇒ CoerceProp (Either a1 a2) (Either b1 b2) p
-
-else instance coercePropTuple
-  ∷ ( CoerceProp a1 b1 ("Tuple.fst" ::: p)
-    , CoerceProp a2 b2 ("Tuple.snd" ::: p)
-    )
-  ⇒ CoerceProp (Tuple a1 a2) (Tuple b1 b2) p
-
-else instance coercePropEffect
-  ∷ (CoerceProp a b ("Effect" ::: p))
-  ⇒ CoerceProp (Effect a) (Effect b) p
-
--- | These instances are provided only for nice debuging experience.
-
-else instance coercePropIntExpectedMismatch
-  ∷ (RenderPath p p', TypeMismatchErr a Int p msg, Fail msg)
-  ⇒ CoerceProp a Int p
-else instance coercePropIntGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr Int a p msg, Fail msg)
-  ⇒ CoerceProp Int a p
-
-else instance coercePropStringExpectedMismatch
-  ∷ (RenderPath p p', TypeMismatchErr a String p msg, Fail msg)
-  ⇒ CoerceProp a String p
-else instance coercePropStringGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr String a p msg, Fail msg)
-  ⇒ CoerceProp String a p
-
-else instance coercePropNumberExpectedMismatch
-  ∷ (RenderPath p p', TypeMismatchErr a Number p msg, Fail msg)
-  ⇒ CoerceProp a Number p
-else instance coercePropNumberGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr Number a p msg, Fail msg)
-  ⇒ CoerceProp Number a p
-
-else instance coercePropBooleanExpectedMismatch
-  ∷ (RenderPath p p', TypeMismatchErr a Boolean p msg, Fail msg)
-  ⇒ CoerceProp a Boolean p
-else instance coercePropBooleanGivenMismatch
-  ∷ (RenderPath p p', TypeMismatchErr Boolean a p msg, Fail msg)
-  ⇒ CoerceProp Boolean a p
-
--- else instance coercePropPoly ∷ CoerceProp a b b p
 
 -- | Ripped from typelevel-eval
 infixr 2 type Beside as <>
@@ -213,17 +96,4 @@ instance typeMismatchErr
       |> Text "it probably means that you should provide type annotation to some"
       |> Text "parts of your value (like `[] ∷ Array Int` or `Nothing ∷ Maybe String`)"
       )
-
--- | Still experimenting with the finall API
-
-class (CoerceProp given expected SNil) ⇐ Coerce given expected
-
-instance optsAlias
-  ∷ (CoerceProp given expected SNil)
-  ⇒ Coerce given expected
-
-coerce
-  ∷ ∀ expected given
-  . Coerce given expected ⇒ given → expected
-coerce = unsafeCoerce
 
