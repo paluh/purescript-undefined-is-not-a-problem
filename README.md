@@ -135,8 +135,8 @@ In other words when you use `Mono.coerce` and `Mono.Coerce` then when the user p
 ```purescript
 type OptionsWithPolymorphicValue = { x :: Opt (Array Int) }
 
-openHandlingNonPolymorphicArray ∷ Effect Unit
-openHandlingNonPolymorphicArray = do
+monoCoerceNonPolymorphicArray ∷ Effect Unit
+monoCoerceNonPolymorphicArray = do
   let
     -- | This `Array Int` signature is required
     argument = { x: [] ∷ Array Int }
@@ -152,7 +152,7 @@ You can always provide an `Mono.Coerce` instance for your types and allow coerci
 ### `NoProblem.Poly.*` approach
 
 
-In general most stuff from the previous sections is relevant here. The small difference is in the signature of the `Colsed.coerce` function as it expects also a `Proxy` value.
+In general most stuff from the previous sections is relevant here. The small difference is in the signature of the `Poly.coerce` function as it expects also a `Proxy` value.
 Another difference is a signature of `Coerce` class. We have here three parameters `Coerce given expected result` because we are calculating a new type which can have some fields still polymorphic and value of this type is returned by the `coerce`.
 
 #### Pros
@@ -160,8 +160,8 @@ Another difference is a signature of `Coerce` class. We have here three paramete
 When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example works now without annotation for the array in `x` prop:
 
 ```purescript
-closedHandlingNonPolymorphicArray ∷ Effect Unit
-closedHandlingNonPolymorphicArray = do
+polyCoercePolymorphicArray ∷ Effect Unit
+polyCoercePolymorphicArray = do
   let
     argument = { x: [] }
 
