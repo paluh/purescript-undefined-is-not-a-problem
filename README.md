@@ -1,10 +1,10 @@
 # purescript-undefined-is-not-a-problem
 
-Handling optional record fields by using first class `undefined` (`undefined | a` "untagged union") and typesafe zero cost record coercing.
+Handling optional record fields by using first class `undefined` (`undefined | a` "untagged union") and typesafe zero cost record coercion.
 
 ## About
 
-The main idea behind this lib was taken from [_purescript-oneof_ library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all __the credits__ should __go to @jvliwanag__. _oneof_ provides a really interesting implementation of untagged unions for PureScript (especially useful in the context of FFI bindings).
+The main idea behind this lib was taken from [_purescript-oneof_ library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all __the credits__ should __go to @jvliwanag__. _oneof_ provides a really interesting implementation of untagged unions for PureScript especially useful in the context of FFI bindings, so please check it out.
 
 I've narrowed this idea down to handle only unions with `undefined` type. I really focus on optional record fields here.
 
@@ -14,9 +14,7 @@ I'm about to publish. I want to use this lib in a larger project before so I wou
 
 ## Usage
 
-I'm going to present of two `coercing` strategies provided by this lib and discuss the difference between them.
-
-### `NoProblem.Open`
+There are two coercing strategies provided by this lib. Don't worry there are both easy to use and the distinction between them is quite simple. I'm going to discuss this difference along the way.
 
 Let me start with imports. This is a literate PureScript example (run as a part of the test suite) so we need them.
 
@@ -26,8 +24,8 @@ module Test.README where
 import Prelude
 
 import Data.Undefined.NoProblem (opt, Opt, undefined, (?), (!))
-import Data.Undefined.NoProblem.Closed (class Coerce, coerce) as Closed
-import Data.Undefined.NoProblem.Open (class Coerce, coerce) as Open
+import Data.Undefined.NoProblem.Poly (class Coerce, coerce) as Poly
+import Data.Undefined.NoProblem.Mono (class Coerce, coerce) as Mono
 import Effect (Effect)
 import Effect.Console (logShow)
 import Effect.Random (random)
@@ -37,7 +35,7 @@ import Type.Prelude (Proxy(..))
 An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these record properties when calling a function.
 
 ```purescript
-type Options =
+type SimpleOptions =
   { a ∷ String
   , b ∷ Opt Number
   , c ∷ Opt
@@ -58,16 +56,17 @@ To work with optional values we have some handy operators at our disposal:
 
   * a "pseudo bind": `? ∷ Opt a → (a → Opt b) → Opt b` opertor which allows us to dive for example into optional record values.
 
-Let's use them together with `coerce` function to build a function which work with the `Option` value internally. `coerce` is able to "fill" missing fields in a given record (recursively) with `Opt a` if that is part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
+### `NoProblem.Mono.coerce`
 
+Let me start with `Mono.coerce` function. We are going to build a function which works with the `SimpleOptions` record value internally. Both `coerce` functions (`Mono.coerce` and `Poly.coerce`) are able to "fill" missing fields in a given record (recursively) with `Opt a` if that is a part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
 
 ```purescript
 -- | This signature is optional
-consumer ∷ ∀ r. Open.Coerce r Options ⇒ r → Number
+consumer ∷ ∀ r. Mono.Coerce r SimpleOptions ⇒ r → Number
 consumer r =
   let
     -- | We should provide an info to which type we try to coerce
-    opts = Open.coerce r ∷ Options
+    opts = Mono.coerce r ∷ SimpleOptions
 
     -- | We can access and traverse optional values using "pseudoBind" function.
     -- | Side note: we can also close such a chain with `# toMaybe` easily.
@@ -78,7 +77,9 @@ consumer r =
 
 The `Coerce` constraint checks if we can use `coerce` safely.
 
-Now we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` is really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
+### Calling our `consumer`
+
+Now we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` are really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
 
 ```purescript
 recordCoerce ∷ Effect Unit
@@ -122,11 +123,12 @@ optValues = do
       (consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}})
       (if setup then 45.0 else 0.0)
 ```
-#### Limitiations of this approach
+
+### Limitiations of `Mono.coerce` approach
 
 There is an inherent problem with coercing polymorphic types in this case. Internally I'm just not able to match a polymorphic type like `Maybe a` with expected type like `Maybe Int` and I'm not able to tell if this types are easily coercible.
 
-In other words when you use `Open.coerce` and `Open.Coerce` then when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
+In other words when you use `Mono.coerce` and `Mono.Coerce` then when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
 
 ```purescript
 type OptionsWithPolymorphicValue = { x :: Opt (Array Int) }
@@ -137,19 +139,20 @@ openHandlingNonPolymorphicArray = do
     -- | This `Array Int` signature is required
     argument = { x: [] ∷ Array Int }
 
-  logShow $ (Open.coerce argument ∷ OptionsWithPolymorphicValue)
+  logShow $ (Mono.coerce argument ∷ OptionsWithPolymorphicValue)
 ```
 
 #### Pros of this approach
 
-You can always provide an `Open.Coerce` instance for your types and allow coercing of its "internals" (please check examples in the module for `Array`, `Maybe` etc. for details).
+You can always provide an `Mono.Coerce` instance for your types and allow coercing of its "internals". Please check examples in the `NoProble.Mono` module where you can find instances for `Array`, `Maybe` etc.
 
 
-### `NoProblem.Closed`
+### `NoProblem.Poly.*` approach
 
-In general most stuff from the previous sections is relevant here as well. The small difference is in the signature of the `Colsed.coerce` function as it expects a `Proxy` value.
+In general most stuff from the previous sections is relevant here. The small difference is in the signature of the `Colsed.coerce` function as it expects also a `Proxy` value.
+Another difference is a signature of `Coerce` class. We have here three parameters `Coerce given expected result` because we are calculating a new type which can have some fields still polymorphic and value of this type is returned by the `coerce`.
 
-When you reach for this type of coercing you can expect better behavior in the case of polymorphic values. This works now without annotation for the array in `x` prop:
+When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example works now without annotation for the array in `x` prop:
 
 ```purescript
 closedHandlingNonPolymorphicArray ∷ Effect Unit
@@ -158,19 +161,53 @@ closedHandlingNonPolymorphicArray = do
     argument = { x: [] }
 
     -- | Now we have still polymorhic type here: `r.x ∷ Array a`
-    r = (Closed.coerce (Proxy ∷ Proxy OptionsWithPolymorphicValue) argument)
+    r = (Poly.coerce (Proxy ∷ Proxy OptionsWithPolymorphicValue) argument)
 
   -- | But we can easily enforce what we want when accessing a value
   logShow (r.x ! [8])
 ```
 
-This strategy is a bit different because we get possibly third polymorphic type as a result from coercion which can be polymorphic but this should not be a problem in practice.
+What is a bit funny is that prividing signature `Poly.Coerce` can be a bit tricky. We want to leave it really polyomrphic so compiler can unify types whenever it needs to :-)
+
+Hypothetically, because you can just easily skip this signature and `Result` type, you could provide a type anotation for previous `consumer` function like:
+
+```purescript
+type Result c d e r =
+   { b :: Opt Number
+   , c :: Opt
+            { d :: { e :: Opt
+                            { g :: Opt Number
+                            | e
+                            }
+                   | d
+                   }
+            | c
+            }
+   | r
+   }
+
+anotatedPolyConsumer ∷ ∀ c d e given r. Poly.Coerce given SimpleOptions (Result c d e r) ⇒ given → Number
+anotatedPolyConsumer given =
+  let
+    -- | We should provide an info to which type we try to coerce
+    opts = Poly.coerce (Proxy ∷ Proxy SimpleOptions) given
+
+    -- | We can access and traverse optional values using "pseudoBind" function.
+    -- | Side note: we can also close such a chain with `# toMaybe` easily.
+    g = opts.c ? _.d.e ? _.g ! 0.0
+  in
+    opts.b ! 0.0 + g
+```
+
+But of course this signature would change if you start using other fields of the "`result`" value :-)
+
 
 #### Limitiations
 
-In this approach when `Closed.Coerce` instances are not able to match type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler decides if given type can be "unified" (so coercible too ;-)).
+In this approach when `Poly.Coerce` instances are not able to match type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler decides if the given type can be "unified" (so coercible too ;-)).
 Because we are closing here an instance chain with this polymorphic case there is no way for you to provide additional instances.
 
+Additionally as pointed above it is hard to provide sensible signatures because we want to probably stay flexible and polymorphic.
 
 ### Debugging
 

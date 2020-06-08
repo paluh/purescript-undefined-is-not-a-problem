@@ -1,4 +1,4 @@
-module Data.Undefined.NoProblem.Open where
+module Data.Undefined.NoProblem.Mono where
 
 import Data.Either (Either)
 import Data.Maybe (Maybe)

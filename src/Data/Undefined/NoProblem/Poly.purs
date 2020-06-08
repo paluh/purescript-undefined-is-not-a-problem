@@ -1,18 +1,9 @@
-module Data.Undefined.NoProblem.Closed where
+module Data.Undefined.NoProblem.Poly where
 
-import Prelude
-
-import Data.Either (Either)
-import Data.Eq (class Eq1, eq1)
-import Data.Maybe (Maybe(..), maybe)
-import Data.Tuple (Tuple)
 import Data.Undefined.NoProblem (class RenderPath, type (:::), type (<>), type (|>), Opt, SNil, kind SList)
-import Effect (Effect)
-import Foreign (Foreign)
-import Foreign (isUndefined) as Foreign
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
-import Prim.TypeError (class Fail, Above, Beside, Quote, QuoteLabel, Text, kind Doc)
-import Type.Prelude (Proxy(..), RLProxy(..))
+import Prim.TypeError (class Fail, Quote, QuoteLabel, Text)
+import Type.Prelude (Proxy, RLProxy)
 import Type.RowList (class ListToRow)
 import Unsafe.Coerce (unsafeCoerce)
 
