@@ -1,6 +1,6 @@
 # purescript-undefined-is-not-a-problem
 
-Handling optional record fields by using first class `undefined` (`undefined | a` "untagged union") and typesafe zero cost record coercion.
+Handling optional record fields with `undefined | a` values and typesafe zero cost coercion.
 
 ## About
 
