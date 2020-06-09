@@ -27,8 +27,8 @@ import Data.Undefined.NoProblem (opt, Opt, undefined, (?), (!))
 import Data.Undefined.NoProblem.Poly (class Coerce, coerce) as Poly
 import Data.Undefined.NoProblem.Mono (class Coerce, coerce) as Mono
 import Effect (Effect)
-import Effect.Console (logShow)
 import Effect.Random (random)
+import Test.Assert (assert)
 import Type.Prelude (Proxy(..))
 ```
 
@@ -94,8 +94,7 @@ recordCoerce = do
        }
 
     result = consumer argument
-  logShow result
-
+  assert (result == 8.0)
 ```
 
 ### Optionality is just a value
@@ -118,10 +117,9 @@ optValues = do
       -- | Could be also `coerce { }`.
       else { b: undefined, g: undefined }
 
-  logShow $
-    eq
-      (consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}})
-      (if setup then 45.0 else 0.0)
+  assert
+    $ (consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}})
+    == (if setup then 45.0 else 0.0)
 ```
 
 ### `Mono.coerce` approach
@@ -141,7 +139,9 @@ monoCoerceNonPolymorphicArray = do
     -- | This `Array Int` signature is required
     argument = { x: [] ∷ Array Int }
 
-  logShow $ (Mono.coerce argument ∷ OptionsWithPolymorphicValue)
+    v = Mono.coerce argument ∷ OptionsWithPolymorphicValue
+
+  assert $ (v.x ! [1] == [])
 ```
 
 #### Pros
@@ -169,15 +169,14 @@ polyCoercePolymorphicArray = do
     r = (Poly.coerce (Proxy ∷ Proxy OptionsWithPolymorphicValue) argument)
 
   -- | But we can easily enforce what we want when accessing a value
-  logShow (r.x ! [8])
+  assert (r.x ! [8] == [])
 ```
 
 #### Cons
 
-What is a bit funny is that prividing signature `Poly.Coerce` can be a bit tricky. We want to leave it really polyomrphic so compiler can unify types whenever it needs to :-)
+Sometimes providing signature for `Poly.Coerce` constraint can be a bit tricky and it is easier to just leave it to the compiler. It is hard beacause want to leave it really polyomrphic so compiler can unify types whenever it needs to... so the signature is really context dependent.
 
-Hypothetically, because you can just easily skip this signature and `Result` type, you could provide a type anotation for the previous `consumer` function like:
-
+<!--
 ```purescript
 type Result c d e r =
    { b :: Opt Number
@@ -207,8 +206,9 @@ anotatedPolyConsumer given =
 ```
 
 But of course this signature would change if you start using other fields of `opts` in the body of the function :-)
+-->
 
-Additional downside of `Poly.Coerce` is that you are not able to provide more instances for it. When builtin `Poly.Coerce` instances are not able to match a type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler can decide if the given type can be "unified" (so coercible too ;-).
+Another downside of the `Poly.Coerce` class is that you are not able to provide more instances for it. When builtin `Poly.Coerce` instances are not able to match a type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler can decide if the given type can be "unified" (so coercible too ;-).
 Because we are closing here an instance chain with this polymorphic case there is no way for you to provide additional instances.
 
 ### Debugging
