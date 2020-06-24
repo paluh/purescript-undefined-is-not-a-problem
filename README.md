@@ -162,10 +162,9 @@ closedCoercePolymorphicArray = do
   let
     argument = { x: [] }
 
-    -- | Now we have still polymorhic type here: `r.x ∷ Array a`
     r = (Closed.coerce argument :: OptionsWithPolymorphicValue)
 
-  -- | But we can easily enforce what we want when accessing a value
+  -- | We can retrive the empty array value which has now type `Array Int`
   assert (r.x ! [8] == [])
 ```
 
