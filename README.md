@@ -56,7 +56,7 @@ To work with optional values we have some handy operators at our disposal:
 
   * a "pseudo bind": `? ∷ Opt a → (a → Opt b) → Opt b` opertor which allows us to dive for example into optional record values.
 
-### `NoProblem.coerce`
+### `Open.coerce`
 
 Let me start with `Open.coerce` function. We are going to build a function which works with the `SimpleOptions` record value internally. Both `coerce` functions (`Open.coerce` and `Closed.coerce`) are able to "fill" missing fields in a given record (recursively) with `Opt a` if that is a part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
 
@@ -126,7 +126,7 @@ optValues = do
 
 #### Cons
 
-There is an inherent problem with coercing polymorphic types in this case. Internally I'm just not able to match a polymorphic type like `Maybe a` with expected type like `Maybe Int` and I'm not able to tell if this types are easily coercible.
+There is an inherent problem with coercing polymorphic types in this case. Internally I'm just not able to match a polymorphic type like `a` with expected type like `Int` because I don't want to close the instance chains and commit to a given type (using something like `TypeEquals`) in this case.
 
 In other words when you use `Open.coerce` and `Open.Coerce` then when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
 
@@ -151,7 +151,7 @@ You can always provide an `Open.Coerce` instance for your types and allow coerci
 
 ### `NoProblem.Closed.*` approach
 
-There is realy no difference in the API provided by this module so we have `Coerce` class and `coerce` function here. The only difference is that the closes instance chain and tries to force unification of uninified types.
+There is realy no difference in the API provided by this module so we have `Coerce` class and `coerce` function here. The only difference is that I'm closing the instance chain and trying to force unification in the last instance.
 
 #### Pros
 
