@@ -175,7 +175,7 @@ The downside of the `Closed.Coerce` class is that you are not able to provide mo
 
 ### Debugging
 
-#### `NoProblem.Open`
+#### `NoProblem.Open.Coerce`
 
 I try to provide some debug info which should help when there is a type mismatch. For example this kind of polymorphic array value in the `z` field causes problem:
 
@@ -202,12 +202,12 @@ and we can get quite informative compile time error message with property path l
   parts of your value. Something like `[] ∷ Array Int` or `Nothing ∷ Maybe String`.
   ```
 
-I'm trying to cover as many case as I can but it is of course possible that you are going to get just generic complier error.
+I'm trying to cover as many cases as I can but it is of course possible that you are going to get just generic complier error.
 
-#### `NoProblem.Closed`
+#### `NoProblem.Closed.Coerce`
 
-In the case of `Closed` constraint errors I think that I'm not able to properly format and render errors but I have included the path of the properties in the typeclass parameters so it can be somewhat extracted in the case of error. It is provided in the reverse order.
-In the below case we see that the unification problem is related to the property type on the path: "`x.Array.__`".
+In the case of `Closed` constraint errors I think that I'm not able to properly format and render errors like I've done in the previous case. So I have included the type path of the properties in the typeclass parameters and it can be somewhat extracted from the generic error. The path is currently provided in the reverse order.
+In the below case we see that the unification problem is related to the property type on the path `(SCons "Array" (SCons "x" SNil))` which translates into something like "`x.Array.__`".
 
   ```
 
