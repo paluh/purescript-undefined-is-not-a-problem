@@ -1,4 +1,4 @@
-module Data.Undefined.NoProblem.Mono where
+module Data.Undefined.NoProblem.Open where
 
 import Data.Either (Either)
 import Data.Maybe (Maybe)
@@ -112,6 +112,7 @@ else instance coercePropEffect
 else instance coercePropIntExpectedMismatch
   ∷ (RenderPath p p', TypeMismatchErr a Int p msg, Fail msg)
   ⇒ CoerceProp a Int p
+
 else instance coercePropIntGivenMismatch
   ∷ (RenderPath p p', TypeMismatchErr Int a p msg, Fail msg)
   ⇒ CoerceProp Int a p
@@ -136,8 +137,6 @@ else instance coercePropBooleanExpectedMismatch
 else instance coercePropBooleanGivenMismatch
   ∷ (RenderPath p p', TypeMismatchErr Boolean a p msg, Fail msg)
   ⇒ CoerceProp Boolean a p
-
--- else instance coercePropPoly ∷ CoerceProp a b b p
 
 -- | Still experimenting with the finall API
 

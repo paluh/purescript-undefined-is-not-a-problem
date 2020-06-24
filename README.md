@@ -24,8 +24,8 @@ module Test.README where
 import Prelude
 
 import Data.Undefined.NoProblem (opt, Opt, undefined, (?), (!))
-import Data.Undefined.NoProblem.Poly (class Coerce, coerce) as Poly
-import Data.Undefined.NoProblem.Mono (class Coerce, coerce) as Mono
+import Data.Undefined.NoProblem.Closed (class Coerce, coerce) as Closed
+import Data.Undefined.NoProblem.Open (class Coerce, coerce) as Open
 import Effect (Effect)
 import Effect.Random (random)
 import Test.Assert (assert)
@@ -56,17 +56,17 @@ To work with optional values we have some handy operators at our disposal:
 
   * a "pseudo bind": `? ∷ Opt a → (a → Opt b) → Opt b` opertor which allows us to dive for example into optional record values.
 
-### `NoProblem.Mono.coerce`
+### `NoProblem.coerce`
 
-Let me start with `Mono.coerce` function. We are going to build a function which works with the `SimpleOptions` record value internally. Both `coerce` functions (`Mono.coerce` and `Poly.coerce`) are able to "fill" missing fields in a given record (recursively) with `Opt a` if that is a part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
+Let me start with `Open.coerce` function. We are going to build a function which works with the `SimpleOptions` record value internally. Both `coerce` functions (`Open.coerce` and `Closed.coerce`) are able to "fill" missing fields in a given record (recursively) with `Opt a` if that is a part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
 
 ```purescript
 -- | This signature is optional
-consumer ∷ ∀ r. Mono.Coerce r SimpleOptions ⇒ r → Number
+consumer ∷ ∀ r. Open.Coerce r SimpleOptions ⇒ r → Number
 consumer r =
   let
     -- | We should provide an info to which type we try to coerce
-    opts = Mono.coerce r ∷ SimpleOptions
+    opts = Open.coerce r ∷ SimpleOptions
 
     -- | We can access and traverse optional values using "pseudoBind" function.
     -- | Side note: we can also close such a chain with `# toMaybe` easily.
@@ -122,51 +122,49 @@ optValues = do
     == (if setup then 45.0 else 0.0)
 ```
 
-### `Mono.coerce` approach
+### `Open.coerce` approach
 
 #### Cons
 
 There is an inherent problem with coercing polymorphic types in this case. Internally I'm just not able to match a polymorphic type like `Maybe a` with expected type like `Maybe Int` and I'm not able to tell if this types are easily coercible.
 
-In other words when you use `Mono.coerce` and `Mono.Coerce` then when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
+In other words when you use `Open.coerce` and `Open.Coerce` then when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
 
 ```purescript
 type OptionsWithPolymorphicValue = { x :: Opt (Array Int) }
 
-monoCoerceNonPolymorphicArray ∷ Effect Unit
-monoCoerceNonPolymorphicArray = do
+openCoerceNonPolymorphicArray ∷ Effect Unit
+openCoerceNonPolymorphicArray = do
   let
     -- | This `Array Int` signature is required
-    argument = { x: [] ∷ Array Int }
+    argument = { x: [] :: Array Int }
 
-    v = Mono.coerce argument ∷ OptionsWithPolymorphicValue
+    v = Open.coerce argument ∷ OptionsWithPolymorphicValue
 
   assert $ (v.x ! [1] == [])
 ```
 
 #### Pros
 
-You can always provide an `Mono.Coerce` instance for your types and allow coercing of its "internals". Please check examples in the `NoProble.Mono` module where you can find instances for `Array`, `Maybe` etc.
+You can always provide an `Open.Coerce` instance for your types and allow coercing of its "internals". Please check examples in the `NoProble.Open` module where you can find instances for `Array`, `Maybe` etc.
 
 
-### `NoProblem.Poly.*` approach
+### `NoProblem.Closed.*` approach
 
-
-In general most stuff from the previous sections is relevant here. The small difference is in the signature of the `Poly.coerce` function as it expects also a `Proxy` value.
-Another difference is a signature of `Coerce` class. We have here three parameters `Coerce given expected result` because we are calculating a new type which can have some fields still polymorphic and value of this type is returned by the `coerce`.
+There is realy no difference in the API provided by this module so we have `Coerce` class and `coerce` function here. The only difference is that the closes instance chain and tries to force unification of uninified types.
 
 #### Pros
 
 When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example works now without annotation for the array in `x` prop:
 
 ```purescript
-polyCoercePolymorphicArray ∷ Effect Unit
-polyCoercePolymorphicArray = do
+closedCoercePolymorphicArray ∷ Effect Unit
+closedCoercePolymorphicArray = do
   let
     argument = { x: [] }
 
     -- | Now we have still polymorhic type here: `r.x ∷ Array a`
-    r = (Poly.coerce (Proxy ∷ Proxy OptionsWithPolymorphicValue) argument)
+    r = (Closed.coerce argument :: OptionsWithPolymorphicValue)
 
   -- | But we can easily enforce what we want when accessing a value
   assert (r.x ! [8] == [])
@@ -174,44 +172,11 @@ polyCoercePolymorphicArray = do
 
 #### Cons
 
-Sometimes providing signature for `Poly.Coerce` constraint can be a bit tricky and it is easier to just leave it to the compiler. It is hard beacause want to leave it really polyomrphic so compiler can unify types whenever it needs to... so the signature is really context dependent.
-
-<!--
-```purescript
-type Result c d e r =
-   { b :: Opt Number
-   , c :: Opt
-            { d :: { e :: Opt
-                            { g :: Opt Number
-                            | e
-                            }
-                   | d
-                   }
-            | c
-            }
-   | r
-   }
-
-anotatedPolyConsumer ∷ ∀ c d e given r. Poly.Coerce given SimpleOptions (Result c d e r) ⇒ given → Number
-anotatedPolyConsumer given =
-  let
-    -- | We should provide an info to which type we try to coerce
-    opts = Poly.coerce (Proxy ∷ Proxy SimpleOptions) given
-
-    -- | We can access and traverse optional values using "pseudoBind" function.
-    -- | Side note: we can also close such a chain with `# toMaybe` easily.
-    g = opts.c ? _.d.e ? _.g ! 0.0
-  in
-    opts.b ! 0.0 + g
-```
-
-But of course this signature would change if you start using other fields of `opts` in the body of the function :-)
--->
-
-Another downside of the `Poly.Coerce` class is that you are not able to provide more instances for it. When builtin `Poly.Coerce` instances are not able to match a type like `a` with `Int` they are "pushing" the polymorphic type to the "result" type so the compiler can decide if the given type can be "unified" (so coercible too ;-).
-Because we are closing here an instance chain with this polymorphic case there is no way for you to provide additional instances.
+The downside of the `Closed.Coerce` class is that you are not able to provide more instances for it.  Because we are closing here an instance chain with this unification case `instance coerceUnify (TypeEquals a b) => Coerce a b` there is no way for you to provide additional instances.
 
 ### Debugging
+
+#### `NoProblem.Open`
 
 I try to provide some debug info which should help when there is a type mismatch. For example this kind of polymorphic array value in the `z` field causes problem:
 
@@ -238,7 +203,32 @@ and we can get quite informative compile time error message with property path l
   parts of your value. Something like `[] ∷ Array Int` or `Nothing ∷ Maybe String`.
   ```
 
-But of course I'm not able to cover all types and this kind of error handling is possible for well known types.
+I'm trying to cover as many case as I can but it is of course possible that you are going to get just generic complier error.
+
+#### `NoProblem.Closed`
+
+In the case of `Closed` constraint errors I think that I'm not able to properly format and render errors but I have included the path of the properties in the typeclass parameters so it can be somewhat extracted in the case of error. It is provided in the reverse order.
+In the below case we see that the unification problem is related to the property type on the path: "`x.Array.__`".
+
+```
+
+  Could not match type
+
+    String
+
+  with type
+
+    Int
+
+
+while solving type class constraint
+
+  Data.Undefined.NoProblem.Closed.TypeEqualsOnPath String
+                                                   Int
+                                                   (SCons "Array" (SCons "x" SNil))
+
+while applying a function coerce
+```
 
 
 <!--
