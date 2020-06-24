@@ -24,12 +24,11 @@ module Test.README where
 import Prelude
 
 import Data.Undefined.NoProblem (opt, Opt, undefined, (?), (!))
-import Data.Undefined.NoProblem.Closed (class Coerce, coerce) as Closed
+import Data.Undefined.NoProblem.Closed (coerce) as Closed
 import Data.Undefined.NoProblem.Open (class Coerce, coerce) as Open
 import Effect (Effect)
 import Effect.Random (random)
 import Test.Assert (assert)
-import Type.Prelude (Proxy(..))
 ```
 
 An API author specifies a `Record` type with all the fields which are optional (wrapped in `Opt`) so the user can skip these record properties when calling a function.
@@ -210,25 +209,25 @@ I'm trying to cover as many case as I can but it is of course possible that you 
 In the case of `Closed` constraint errors I think that I'm not able to properly format and render errors but I have included the path of the properties in the typeclass parameters so it can be somewhat extracted in the case of error. It is provided in the reverse order.
 In the below case we see that the unification problem is related to the property type on the path: "`x.Array.__`".
 
-```
+  ```
 
-  Could not match type
+    Could not match type
 
-    String
+      String
 
-  with type
+    with type
 
-    Int
+      Int
 
 
-while solving type class constraint
+  while solving type class constraint
 
-  Data.Undefined.NoProblem.Closed.TypeEqualsOnPath String
-                                                   Int
-                                                   (SCons "Array" (SCons "x" SNil))
+    Data.Undefined.NoProblem.Closed.TypeEqualsOnPath String
+                                                     Int
+                                                     (SCons "Array" (SCons "x" SNil))
 
-while applying a function coerce
-```
+  while applying a function coerce
+  ```
 
 
 <!--
