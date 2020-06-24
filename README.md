@@ -121,7 +121,7 @@ optValues = do
     == (if setup then 45.0 else 0.0)
 ```
 
-### `Open.coerce` approach
+### `NoProblem.Open.*` approach
 
 #### Cons
 
