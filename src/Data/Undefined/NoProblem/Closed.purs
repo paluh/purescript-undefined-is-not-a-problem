@@ -68,7 +68,9 @@ class CoerceProp given expected (debugPath ∷ SList) | expected → debugPath
 -- -- |
 -- -- | The rest is handling errors and providing intances
 -- -- | for well known polymorphic types like `Maybe`, `Either`...
-instance coercePropOptValues
+instance coercePropMatch
+  :: CoerceProp a a p
+else instance coercePropOptValues
   ∷ (CoerceProp a b p)
   ⇒ CoerceProp (Opt a) (Opt b) p
 else instance coercePropOptValue
@@ -77,9 +79,6 @@ else instance coercePropOptValue
 else instance coercePropRecord
   ∷ (RowToList e el, RowToList g gl, CoerceProps gl el p)
   ⇒ CoerceProp { | g } { | e } p
-
-else instance coercePropMatch
-  :: CoerceProp a a p
 
 -- | These instances are provided to allow coercing over popular types
 
@@ -107,7 +106,7 @@ else instance coercePropEffect
   ∷ (CoerceProp a b ("Effect" ::: p))
   ⇒ CoerceProp (Effect a) (Effect b) p
 
-else instance coercePropBooleanGivenMismatch
+else instance coercePropUnify
   ∷ (TypeEqualsOnPath a b p)
   ⇒ CoerceProp a b p
 

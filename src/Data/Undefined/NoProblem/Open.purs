@@ -108,6 +108,8 @@ else instance coercePropEffect
   ⇒ CoerceProp (Effect a) (Effect b) p
 
 -- | These instances are provided only for nice debuging experience.
+-- | I'm still not sure if I not breaking some polymorphic scenarios
+-- | here.
 
 else instance coercePropIntExpectedMismatch
   ∷ (RenderPath p p', TypeMismatchErr a Int p msg, Fail msg)
