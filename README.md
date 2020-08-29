@@ -4,7 +4,7 @@ Handling optional record fields with `undefined | a` values and typesafe zero co
 
 ## About
 
-The main idea behind this lib was taken from [_purescript-untagged-union_ library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all __the credits__ should __go to @jvliwanag__. _oneof_ provides a really interesting implementation of untagged unions for PureScript especially useful in the context of FFI bindings, so please check it out.
+The main idea behind this lib was taken from [_purescript-untagged-union_ library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all __the credits__ should __go to @jvliwanag__. _untagged-union_ provides a really interesting implementation of untagged unions for PureScript especially useful in the context of FFI bindings, so please check it out.
 
 I've narrowed this idea down to handle only unions with `undefined` type. I really focus on optional record fields here.
 
