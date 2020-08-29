@@ -4,7 +4,7 @@ Handling optional record fields with `undefined | a` values and typesafe zero co
 
 ## About
 
-The main idea behind this lib was taken from [_purescript-oneof_ library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all __the credits__ should __go to @jvliwanag__. _oneof_ provides a really interesting implementation of untagged unions for PureScript especially useful in the context of FFI bindings, so please check it out.
+The main idea behind this lib was taken from [_purescript-untagged-union library by @jvliwanag](https://github.com/jvliwanag/purescript-oneof) so all __the credits__ should __go to @jvliwanag__. _oneof_ provides a really interesting implementation of untagged unions for PureScript especially useful in the context of FFI bindings, so please check it out.
 
 I've narrowed this idea down to handle only unions with `undefined` type. I really focus on optional record fields here.
 
@@ -57,7 +57,7 @@ To work with optional values we have some handy operators at our disposal:
 
 ### `Open.coerce`
 
-Let me start with `Open.coerce` function. We are going to build a function which works with the `SimpleOptions` record value internally. Both `coerce` functions (`Open.coerce` and `Closed.coerce`) are able to "fill" missing fields in a given record (recursively) with `Opt a` if that is a part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
+Let me start with `Open.coerce` function. We are going to build a function which internally works with the `SimpleOptions` record value defined above. Both `coerce` functions (`Open.coerce` and `Closed.coerce`) are able to "fill" missing fields in a given record (recursively) with `Opt a` if that is a part of the initial type and transform proper values to `Opt` ones if it is needed. This is a purely typelevel transformation.
 
 ```purescript
 -- | This signature is optional
@@ -78,7 +78,7 @@ The `Coerce` constraint checks if we can use `coerce` safely.
 
 ### Calling our `consumer`
 
-Now we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` are really expected (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
+Now we are ready to use our function. As you can see our `argument` value lacks multiple fields and uses values directly in the places where `Opt` are really expected in the `SimpleOptions` type (like `c` should be `Opt {... }` and `g` should have type `Opt Number`):
 
 ```purescript
 recordCoerce ∷ Effect Unit
@@ -127,7 +127,7 @@ optValues = do
 
 There is an inherent problem with coercing polymorphic types in this case. Internally I'm just not able to match a polymorphic type like `a` with expected type like `Int` because I don't want to close the instance chains and commit to a given type (using something like `TypeEquals`) in this case.
 
-In other words when you use `Open.coerce` and `Open.Coerce` then when the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
+In other words when you use `Open.coerce` and `Open.Coerce` then whenever the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
 
 ```purescript
 type OptionsWithPolymorphicValue = { x :: Opt (Array Int) }
@@ -170,7 +170,7 @@ closedCoercePolymorphicArray = do
 
 #### Cons
 
-The downside of the `Closed.Coerce` class is that you are not able to provide more instances for it.  Because we are closing here an instance chain with this unification case `instance coerceUnify (TypeEquals a b) => Coerce a b` there is no way for you to provide additional instances.
+The downside of the `Closed.Coerce` class is that you are not able to provide more instances for it.  Because we are closing here an instance chain with this unification case `instance coerceUnify :: (TypeEquals a b) => Coerce a b` there is no way for you to provide additional instances.
 
 ### Debugging
 
