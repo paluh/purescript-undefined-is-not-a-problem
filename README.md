@@ -12,6 +12,10 @@ I've narrowed this idea down to handle only unions with `undefined` type. I real
 
 I'm about to publish. I want to use this lib in a larger project before so I would know if the API is usable enough.
 
+## Limitations
+
+You can encounter slow compilation time if you are going to process really large record types with the lib. I mean records with more than 80 or 100 fields can have an sigificant impact of module build time. [Here](https://discourse.purescript.org/t/rowlist-iteration-seems-to-be-relatively-slow/1492/4) you can find a related PS discourse thread for reference.
+
 ## Usage
 
 There are two coercing strategies provided by this lib. Don't worry they are both easy to use and the distinction between them is quite simple. I'm going to discuss this difference along the way.
