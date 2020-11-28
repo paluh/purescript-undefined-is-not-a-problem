@@ -13,6 +13,7 @@ You can edit this file as you like.
   , "random"
   , "typelevel-prelude"
   , "unsafe-coerce"
+  , "variant"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
