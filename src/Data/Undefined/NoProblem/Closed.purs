@@ -4,7 +4,7 @@ import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Data.Tuple (Tuple)
 import Data.Undefined.NoProblem (class RenderPath, type (:::), type (<>), type (|>), Opt, SNil, kind SList)
-import Data.Variant (Variant)
+-- import Data.Variant (Variant)
 import Effect (Effect)
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Prim.TypeError (class Fail, QuoteLabel, Text)
@@ -94,9 +94,9 @@ else instance coercePropTuple ∷
   , CoerceProp a2 b2 ("Tuple.snd" ::: p)
   ) ⇒
   CoerceProp (Tuple a1 a2) (Tuple b1 b2) p
-else instance coercePropVariant ∷
-  (RowToList e el, RowToList g gl, CoerceProps gl el p) ⇒
-  CoerceProp (Variant g) (Variant e) p
+-- else instance coercePropVariant ∷
+--   (RowToList e el, RowToList g gl, CoerceProps gl el p) ⇒
+--   CoerceProp (Variant g) (Variant e) p
 else instance coercePropEffect ∷
   (CoerceProp a b ("Effect" ::: p)) ⇒
   CoerceProp (Effect a) (Effect b) p
