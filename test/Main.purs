@@ -1,7 +1,6 @@
 module Test.Main where
 
 import Prelude
-
 import Effect (Effect)
 import Test.README (closedCoercePolymorphicArray, openCoerceNonPolymorphicArray, optValues, recordCoerce) as Test.README
 
