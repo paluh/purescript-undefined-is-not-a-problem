@@ -10,7 +10,7 @@ I've narrowed this idea down to handle only unions with `undefined` type. I real
 
 ## Limitations
 
-You can encounter slow compilation time if you are going to process really large record types with the lib. I mean records with more than 80 or 100 fields can have an sigificant impact of module build time. [Here](https://discourse.purescript.org/t/rowlist-iteration-seems-to-be-relatively-slow/1492/4) you can find a related PS discourse thread for reference.
+You can encounter slow compilation time if you are going to process really large record types with the lib. I mean records with more than 80 or 100 fields can have an significant impact of module build time. [Here](https://discourse.purescript.org/t/rowlist-iteration-seems-to-be-relatively-slow/1492/4) you can find a related PS discourse thread for reference.
 
 ## Usage
 
@@ -145,12 +145,11 @@ openCoerceNonPolymorphicArray = do
 
 #### Pros
 
-You can always provide an `Open.Coerce` instance for your types and allow coercing of its "internals". Please check examples in the `NoProble.Open` module where you can find instances for `Array`, `Maybe` etc.
-
+You can always provide an `Open.Coerce` instance for your types and allow coercing of its "internals". Please check examples in the `NoProblem.Open` module where you can find instances for `Array`, `Maybe` etc.
 
 ### `NoProblem.Closed.*` approach
 
-There is realy no difference in the API provided by this module so we have `Coerce` class and `coerce` function here. The only difference is that I'm closing the instance chain and trying to force unification in the last instance.
+There is really no difference in the API provided by this module so we have `Coerce` class and `coerce` function here. The only difference is that I'm closing the instance chain and trying to force unification in the last instance.
 
 #### Pros
 
