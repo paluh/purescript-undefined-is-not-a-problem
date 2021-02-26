@@ -13,7 +13,6 @@ You can edit this file as you like.
   , "random"
   , "typelevel-prelude"
   , "unsafe-coerce"
-  , "variant"
   ]
 , license = "BSD-3-Clause"
 , packages = ./packages.dhall

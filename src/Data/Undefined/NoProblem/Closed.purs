@@ -9,7 +9,7 @@ import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Prim.TypeError (class Fail, QuoteLabel, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
-class CoerceProps (given ∷ RowList) (expected ∷ RowList) (debugPath ∷ SList) | given → debugPath
+class CoerceProps (given ∷ RowList Type) (expected ∷ RowList Type) (debugPath ∷ SList) | given → debugPath
 
 instance coercePropsNil ∷
   CoerceProps Nil Nil any
@@ -57,7 +57,7 @@ else instance coercePropsUnexpected ∷
   CoerceProps (Cons n a t) Nil p
 
 -- | Check if given type can be coerced safely to the expected one.
-class CoerceProp given expected (debugPath ∷ SList) | expected → debugPath
+class CoerceProp (given :: Type) (expected :: Type) (debugPath ∷ SList) | expected → debugPath
 
 -- -- | The most important instances are these three
 -- -- | and the last one which passes the type to the
@@ -100,7 +100,7 @@ else instance coercePropUnify ∷
   (TypeEqualsOnPath a b p) ⇒
   CoerceProp a b p
 
-class TypeEqualsOnPath a b (p ∷ SList) | a → b, b → a
+class TypeEqualsOnPath (a :: Type) (b :: Type) (p ∷ SList) | a → b, b → a
 
 instance typeEqualsOnPathUnified ∷ TypeEqualsOnPath a a p
 
