@@ -3,9 +3,9 @@ module Data.Undefined.NoProblem.Closed where
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Data.Tuple (Tuple)
-import Data.Undefined.NoProblem (class RenderPath, type (:::), type (<>), type (|>), Opt, SNil, kind SList)
+import Data.Undefined.NoProblem (class RenderPath, type (:::), type (<>), type (|>), Opt, SNil, SList)
 import Effect (Effect)
-import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
+import Prim.RowList (class RowToList, Cons, Nil, RowList)
 import Prim.TypeError (class Fail, QuoteLabel, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
