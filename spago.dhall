@@ -2,7 +2,7 @@
 Welcome to a Spago project!
 You can edit this file as you like.
 -}
-{ name = "my-project"
+{ name = "undefined-is-not-a-problem"
 , dependencies =
   [ "assert"
   , "console"
@@ -13,7 +13,6 @@ You can edit this file as you like.
   , "random"
   , "typelevel-prelude"
   , "unsafe-coerce"
-  , "variant"
   ]
 , license = "BSD-3-Clause"
 , packages = ./packages.dhall

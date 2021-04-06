@@ -3,14 +3,14 @@ module Data.Undefined.NoProblem.Open where
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Data.Tuple (Tuple)
-import Data.Undefined.NoProblem (class RenderPath, class TypeMismatchErr, type (:::), type (<>), type (|>), Opt, SNil, kind SList)
+import Data.Undefined.NoProblem (class RenderPath, class TypeMismatchErr, type (:::), type (<>), type (|>), Opt, SNil, SList)
 import Effect (Effect)
-import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
+import Prim.RowList (class RowToList, Cons, Nil, RowList)
 import Prim.TypeError (class Fail, QuoteLabel, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
 class CoerceProps
-  (given ∷ RowList) (expected ∷ RowList) (debugPath ∷ SList)
+  (given ∷ RowList Type) (expected ∷ RowList Type) (debugPath ∷ SList)
   | given → debugPath
 
 instance coercePropsNil
@@ -60,7 +60,7 @@ else instance coercePropsUnexpected
 
 
 -- | Check if given type can be coerced safely to the expected one.
-class CoerceProp given expected (debugPath ∷ SList) | expected → debugPath
+class CoerceProp (given :: Type) (expected :: Type) (debugPath ∷ SList) | expected → debugPath
 
 -- -- | The most important instances are these three
 -- -- | and the last one which passes the type to the

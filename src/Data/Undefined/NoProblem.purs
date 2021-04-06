@@ -92,7 +92,7 @@ else instance renderPathSegment ∷
   (RenderPath tail p) ⇒
   RenderPath (segment ::: tail) (p <> Text "." <> QuoteLabel segment)
 
-class TypeMismatchErr given expected (path ∷ SList) (msg ∷ Doc) | path expected given → msg
+class TypeMismatchErr (given :: Type) (expected :: Type) (path ∷ SList) (msg ∷ Doc) | path expected given → msg
 
 instance typeMismatchErr ∷
   (RenderPath p p') ⇒
