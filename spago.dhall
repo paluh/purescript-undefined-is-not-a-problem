@@ -5,13 +5,15 @@ You can edit this file as you like.
 { name = "undefined-is-not-a-problem"
 , dependencies =
   [ "assert"
-  , "console"
+  , "control"
   , "effect"
+  , "either"
   , "foreign"
+  , "maybe"
   , "prelude"
   , "psci-support"
   , "random"
-  , "typelevel-prelude"
+  , "tuples"
   , "unsafe-coerce"
   ]
 , license = "BSD-3-Clause"
