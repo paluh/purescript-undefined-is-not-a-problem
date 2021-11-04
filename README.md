@@ -200,7 +200,7 @@ and we can get quite informative compile time error message with property path l
   parts of your value. Something like `[] ∷ Array Int` or `Nothing ∷ Maybe String`.
   ```
 
-I'm trying to cover as many cases as I can but it is of course possible that you are going to get just generic complier error.
+I'm trying to cover as many cases as I can but it is of course possible that you are going to get just generic compiler error.
 
 #### `NoProblem.Closed.Coerce`
 
