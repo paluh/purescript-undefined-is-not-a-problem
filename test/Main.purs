@@ -2,11 +2,11 @@ module Test.Main where
 
 import Prelude
 import Effect (Effect)
-import Test.README (closedCoercePolymorphicArray, openCoerceNonPolymorphicArray, optValues, recordCoerce) as Test.README
+import Test.README (closedCoerceArray, openCoerceArray, optValues, recordCoerce) as Test.README
 
 main ∷ Effect Unit
 main = do
   Test.README.recordCoerce
   Test.README.optValues
-  Test.README.openCoerceNonPolymorphicArray
-  Test.README.closedCoercePolymorphicArray
+  Test.README.openCoerceArray
+  Test.README.closedCoerceArray

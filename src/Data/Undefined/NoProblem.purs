@@ -40,6 +40,7 @@ fromOptFlipped o default =
 
 infixl 9 fromOptFlipped as !
 
+-- | `fromMaybe` is just `maybe undefined opt`
 toMaybe ∷ ∀ a. Opt a → Maybe a
 toMaybe o =
   if isUndefined o then

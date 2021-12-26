@@ -113,8 +113,8 @@ optValues = do
     { b, g } = if setup
       -- | Could be also done with `coerce`.
       then { b: opt 20.0, g: opt 25.0 }
-      -- | Could be also `coerce { }`.
-      else { b: undefined, g: undefined }
+      -- | Could be also `coerce { b: undefind, g: undefined }`.
+      else Closed.coerce { }
 
   assert
     $ (consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}})
@@ -130,15 +130,15 @@ There is an inherent problem with coercing polymorphic types in this case. Inter
 In other words when you use `Open.coerce` and `Open.Coerce` then whenever the user provides values like `Nothing` or `[]` as a part of the argument value these pieces should be annotated.
 
 ```purescript
-type OptionsWithPolymorphicValue = { x :: Opt (Array Int) }
+type OptionsWithArrayValue = { x :: Opt (Array Int) }
 
-openCoerceNonPolymorphicArray ∷ Effect Unit
-openCoerceNonPolymorphicArray = do
+openCoerceArray ∷ Effect Unit
+openCoerceArray = do
   let
     -- | This `Array Int` signature is required
     argument = { x: [] :: Array Int }
 
-    v = Open.coerce argument ∷ OptionsWithPolymorphicValue
+    v = Open.coerce argument ∷ OptionsWithArrayValue
 
   assert $ (v.x ! [1] == [])
 ```
@@ -156,12 +156,12 @@ There is really no difference in the API provided by this module so we have `Coe
 When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example works now without annotation for the array in `x` prop:
 
 ```purescript
-closedCoercePolymorphicArray ∷ Effect Unit
-closedCoercePolymorphicArray = do
+closedCoerceArray ∷ Effect Unit
+closedCoerceArray = do
   let
     argument = { x: [] }
 
-    r = (Closed.coerce argument :: OptionsWithPolymorphicValue)
+    r = (Closed.coerce argument :: OptionsWithArrayValue)
 
   -- | We can retrive the empty array value which has now type `Array Int`
   assert (r.x ! [8] == [])
@@ -226,3 +226,19 @@ In the below case we see that the unification problem is related to the property
 
   while applying a function coerce
   ```
+
+# #### Known workarounds
+# 
+# 
+# * Higher rank types - Wrap them in `newtype`
+# 
+# newtype Interpret m n = Interpret (m ~> n)
+# 
+# type Options m i =
+#   { initialState ∷ Opt (InitialState i)
+#   , interpret ∷ Opt (Interpret m Identity)
+#   , validationStrategy ∷ Opt ValidationStrategy
+#   }
+# 
+# x ∷ ∀ a opts m. Coerce opts (Options m a) ⇒ opts → Options m a
+# x opts = Coerce.coerce opts ∷ Options m a
