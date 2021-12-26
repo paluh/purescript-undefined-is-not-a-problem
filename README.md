@@ -227,18 +227,20 @@ In the below case we see that the unification problem is related to the property
   while applying a function coerce
   ```
 
-# #### Known workarounds
-# 
-# 
-# * Higher rank types - Wrap them in `newtype`
-# 
-# newtype Interpret m n = Interpret (m ~> n)
-# 
-# type Options m i =
-#   { initialState ∷ Opt (InitialState i)
-#   , interpret ∷ Opt (Interpret m Identity)
-#   , validationStrategy ∷ Opt ValidationStrategy
-#   }
-# 
-# x ∷ ∀ a opts m. Coerce opts (Options m a) ⇒ opts → Options m a
-# x opts = Coerce.coerce opts ∷ Options m a
+<!--
+#### Known workarounds
+
+
+* Higher rank types - Wrap them in `newtype`
+
+newtype Interpret m n = Interpret (m ~> n)
+
+type Options m i =
+  { initialState ∷ Opt (InitialState i)
+  , interpret ∷ Opt (Interpret m Identity)
+  , validationStrategy ∷ Opt ValidationStrategy
+  }
+
+x ∷ ∀ a opts m. Coerce opts (Options m a) ⇒ opts → Options m a
+x opts = Coerce.coerce opts ∷ Options m a
+-->
