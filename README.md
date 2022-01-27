@@ -113,7 +113,7 @@ optValues = do
     { b, g } = if setup
       -- | Could be also done with `coerce`.
       then { b: opt 20.0, g: opt 25.0 }
-      -- | Could be also `coerce { b: undefind, g: undefined }`.
+      -- | Could be also `coerce { b: undefined, g: undefined }`.
       else Closed.coerce { }
 
   assert
