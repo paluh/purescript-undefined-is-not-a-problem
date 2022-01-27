@@ -10,7 +10,8 @@ I've narrowed this idea down to handle only unions with `undefined` type. I real
 
 ## Limitations
 
-You can encounter slow compilation time if you are going to process really large record types with the lib. I mean records with more than 80 or 100 fields can have an significant impact of module build time. [Here](https://discourse.purescript.org/t/rowlist-iteration-seems-to-be-relatively-slow/1492/4) you can find a related PS discourse thread for reference.
+You can encounter slow compilation time if you are going to process really large record types with the lib. I mean records with more than 80 or 100 fields  can have an significant impact on module build time. Please note that this is compilation time is not behaving in a linear fashion - processing 10 records with 10 properties won't be a problem!
+[Here](https://discourse.purescript.org/t/rowlist-iteration-seems-to-be-relatively-slow/1492/4) you can find a related PS discourse thread for reference.
 
 ## Usage
 
