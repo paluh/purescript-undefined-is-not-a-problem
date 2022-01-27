@@ -112,8 +112,12 @@ optValues = do
   let
     { b, g } = if setup
       -- | Could be also done with `coerce`.
-      then { b: opt 20.0, g: opt 25.0 }
-      -- | Could be also `coerce { b: undefined, g: undefined }`.
+      then { b: opt 20.0, g: opt 5.0 }
+      -- | Could be also just `{ b: undefined, g: undefined }`
+      -- | like above.
+      -- | But sometimes we would need annotations here..
+      -- | when types is not fully determined by the
+      -- | above two `opt` in record.
       else Closed.coerce { }
 
   assert

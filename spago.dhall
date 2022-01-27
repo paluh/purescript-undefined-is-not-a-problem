@@ -5,7 +5,6 @@ You can edit this file as you like.
 { name = "undefined-is-not-a-problem"
 , dependencies =
   [ "assert"
-  , "control"
   , "effect"
   , "either"
   , "foreign"

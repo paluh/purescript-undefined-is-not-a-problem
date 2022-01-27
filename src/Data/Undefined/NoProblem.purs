@@ -5,7 +5,7 @@ import Data.Eq (class Eq1, eq1)
 import Data.Maybe (Maybe(..), maybe)
 import Foreign (Foreign)
 import Foreign (isUndefined) as Foreign
-import Prim.TypeError (Above, Beside, Quote, QuoteLabel, Text, kind Doc)
+import Prim.TypeError (Above, Beside, Quote, QuoteLabel, Text, Doc)
 import Unsafe.Coerce (unsafeCoerce)
 
 foreign import data Opt ∷ Type → Type
@@ -40,7 +40,6 @@ fromOptFlipped o default =
 
 infixl 9 fromOptFlipped as !
 
--- | `fromMaybe` is just `maybe undefined opt`
 toMaybe ∷ ∀ a. Opt a → Maybe a
 toMaybe o =
   if isUndefined o then
@@ -48,9 +47,8 @@ toMaybe o =
   else
     Just (unsafeUnwrap o)
 
--- | Maps a Maybe into an Opt
-maybeToOpt :: forall a. Maybe a -> Opt a
-maybeToOpt = maybe undefined opt
+fromMaybe :: forall a. Maybe a -> Opt a
+fromMaybe = maybe undefined opt
 
 isUndefined ∷ ∀ a. Opt a → Boolean
 isUndefined undef = Foreign.isUndefined (unsafeCoerce undef ∷ Foreign)
@@ -73,7 +71,7 @@ pseudoBind o f =
 infixl 9 pseudoBind as ?
 
 pseudoMap :: forall a b. (a -> b) -> Opt a -> Opt b
-pseudoMap f = maybeToOpt <<< (map f <<< toMaybe)
+pseudoMap f = fromMaybe <<< (map f <<< toMaybe)
 
 -- | Ripped from typelevel-eval
 infixr 2 type Beside as <>
