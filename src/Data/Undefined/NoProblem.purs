@@ -48,6 +48,10 @@ toMaybe o =
   else
     Just (unsafeUnwrap o)
 
+-- | Maps a Maybe into an Opt
+maybeToOpt :: forall a. Maybe a -> Opt a
+maybeToOpt = maybe undefined opt
+
 isUndefined ∷ ∀ a. Opt a → Boolean
 isUndefined undef = Foreign.isUndefined (unsafeCoerce undef ∷ Foreign)
 
@@ -69,7 +73,7 @@ pseudoBind o f =
 infixl 9 pseudoBind as ?
 
 pseudoMap :: forall a b. (a -> b) -> Opt a -> Opt b
-pseudoMap f = maybe undefined (opt <<< f) <<< toMaybe
+pseudoMap f = maybeToOpt <<< (map f <<< toMaybe)
 
 -- | Ripped from typelevel-eval
 infixr 2 type Beside as <>
