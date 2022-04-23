@@ -79,7 +79,7 @@ infixr 2 type Beside as <>
 infixr 1 type Above as |>
 
 -- | Ripped from record-extra
-foreign import kind SList
+data SList
 
 foreign import data SCons ∷ Symbol → SList → SList
 

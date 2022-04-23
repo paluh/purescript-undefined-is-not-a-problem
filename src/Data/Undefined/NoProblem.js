@@ -1,3 +1,4 @@
-"use strict"
-
-exports.undefined = undefined;
+const undefinedImpl = function () {
+    return undefined
+}
+export { undefinedImpl as undefined }
