@@ -1,13 +1,16 @@
 { name = "undefined-is-not-a-problem"
 , dependencies =
-  [ "assert"
+  [ "arrays"
+  , "assert"
   , "effect"
   , "either"
   , "foreign"
   , "maybe"
+  , "newtype"
   , "prelude"
   , "random"
   , "tuples"
+  , "type-equality"
   , "unsafe-coerce"
   ]
 , license = "BSD-3-Clause"

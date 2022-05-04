@@ -3,10 +3,11 @@ module Data.Undefined.NoProblem.Open where
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Data.Tuple (Tuple)
-import Data.Undefined.NoProblem (class RenderPath, class TypeMismatchErr, type (:::), type (<>), type (|>), Opt, SNil, SList)
+import Data.Undefined.NoProblem (class RenderPath, class TypeMismatchErr, type (:::), type (<>), type (|>), Opt, Req, SList, SNil)
 import Effect (Effect)
 import Prim.RowList (class RowToList, Cons, Nil, RowList)
 import Prim.TypeError (class Fail, QuoteLabel, Text)
+import Type.Equality (class TypeEquals)
 import Unsafe.Coerce (unsafeCoerce)
 
 class CoerceProps
@@ -68,7 +69,10 @@ class CoerceProp (given :: Type) (expected :: Type) (debugPath ∷ SList) | expe
 -- -- |
 -- -- | The rest is handling errors and providing intances
 -- -- | for well known polymorphic types like `Maybe`, `Either`...
-instance coercePropOptValues
+instance coercePropReq
+  ∷ (TypeEquals a b)
+  ⇒ CoerceProp a (Req b) p
+else instance coercePropOptValues
   ∷ (CoerceProp a b p)
   ⇒ CoerceProp (Opt a) (Opt b) p
 else instance coercePropOptValue

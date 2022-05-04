@@ -3,7 +3,7 @@ module Data.Undefined.NoProblem.Closed where
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Data.Tuple (Tuple)
-import Data.Undefined.NoProblem (class RenderPath, type (:::), type (<>), type (|>), Opt, SNil, SList)
+import Data.Undefined.NoProblem (class RenderPath, type (:::), type (<>), type (|>), Opt, Req, SList, SNil)
 import Effect (Effect)
 import Prim.RowList (class RowToList, Cons, Nil, RowList)
 import Prim.TypeError (class Fail, QuoteLabel, Text)
@@ -65,8 +65,9 @@ class CoerceProp (given :: Type) (expected :: Type) (debugPath ∷ SList) | expe
 -- -- |
 -- -- | The rest is handling errors and providing intances
 -- -- | for well known polymorphic types like `Maybe`, `Either`...
-instance coercePropMatch ::
-  CoerceProp a a p
+instance coercePropReq ∷
+  (TypeEqualsOnPath a b p) ⇒
+  CoerceProp a (Req b) p
 else instance coercePropOptValues ∷
   (CoerceProp a b p) ⇒
   CoerceProp (Opt a) (Opt b) p
@@ -97,7 +98,7 @@ else instance coercePropEffect ∷
   (CoerceProp a b ("Effect" ::: p)) ⇒
   CoerceProp (Effect a) (Effect b) p
 else instance coercePropUnify ∷
-  (TypeEqualsOnPath a b p) ⇒
+  TypeEqualsOnPath a b p ⇒
   CoerceProp a b p
 
 class TypeEqualsOnPath (a :: Type) (b :: Type) (p ∷ SList) | a → b, b → a
