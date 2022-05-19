@@ -1,4 +1,2 @@
-const undefinedImpl = function () {
-    return undefined
-}
+const undefinedImpl = undefined
 export { undefinedImpl as undefined }
