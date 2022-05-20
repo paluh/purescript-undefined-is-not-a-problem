@@ -164,7 +164,7 @@ When you reach for this type of coercing you can expect a better behavior in the
 closedCoerceArray ∷ Effect Unit
 closedCoerceArray = do
   let
-    argument = { x: [] }
+    argument = { x: [] :: Array Int }
 
     r = (Closed.coerce argument :: OptionsWithArrayValue)
 

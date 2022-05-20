@@ -1,7 +1,3 @@
-{-
-Welcome to a Spago project!
-You can edit this file as you like.
--}
 { name = "undefined-is-not-a-problem"
 , dependencies =
   [ "assert"
@@ -10,7 +6,6 @@ You can edit this file as you like.
   , "foreign"
   , "maybe"
   , "prelude"
-  , "psci-support"
   , "random"
   , "tuples"
   , "unsafe-coerce"
