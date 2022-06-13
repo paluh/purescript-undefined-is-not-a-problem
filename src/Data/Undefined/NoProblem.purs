@@ -1,13 +1,33 @@
 module Data.Undefined.NoProblem where
 
 import Prelude
+
 import Data.Eq (class Eq1, eq1)
 import Data.Maybe (Maybe(..), maybe)
+import Data.Newtype (class Newtype)
 import Foreign (Foreign)
 import Foreign (isUndefined) as Foreign
 import Prim.TypeError (Above, Beside, Quote, QuoteLabel, Text, Doc)
 import Unsafe.Coerce (unsafeCoerce)
 
+-- | Denotes a required record field, the opposite of `Opt`. Note that using
+-- | this type is only required for polymorphic fields, due to complicated type
+-- | system reasons. Fields that have concrete types are not required to use
+-- | `Req`. For example:
+-- |
+-- |     type Args a =
+-- |       { polymorphicField :: Req a  -- `Req` is needed here
+-- |       , optionalField :: Opt a
+-- |       , concreteTypedField :: Int  -- no need for `Req` here
+-- |       }
+-- |
+newtype Req a = Req a
+derive instance Newtype (Req a) _
+derive newtype instance Show a => Show (Req a)
+
+-- | Denotes an optional value, typically a record field, allowing the consumer
+-- | to omit such field when passing the parameter, but still allowing the
+-- | receiving function to work with the field.
 foreign import data Opt ∷ Type → Type
 
 instance eqOpt ∷ Eq a ⇒ Eq (Opt a) where

@@ -24,7 +24,7 @@ module Test.README where
 
 import Prelude
 
-import Data.Undefined.NoProblem (opt, Opt, undefined, (?), (!))
+import Data.Undefined.NoProblem (opt, Opt, (?), (!))
 import Data.Undefined.NoProblem.Closed (coerce) as Closed
 import Data.Undefined.NoProblem.Open (class Coerce, coerce) as Open
 import Effect (Effect)
@@ -123,7 +123,7 @@ optValues = do
 
   assert
     $ (consumer { a: "test", b, c: { d: { e: { g, h: "test" }}}})
-    == (if setup then 45.0 else 0.0)
+    == (if setup then 25.0 else 0.0)
 ```
 
 ### `NoProblem.Open.*` approach
@@ -164,7 +164,7 @@ When you reach for this type of coercing you can expect a better behavior in the
 closedCoerceArray ∷ Effect Unit
 closedCoerceArray = do
   let
-    argument = { x: [] :: Array Int }
+    argument = { x: [] }
 
     r = (Closed.coerce argument :: OptionsWithArrayValue)
 
