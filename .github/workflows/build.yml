@@ -1,0 +1,28 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        path: |
+          .spago
+          output
+          node_modules
+        key: build-atrifacts-v1-${{ hashFiles('spago.dhall', 'packages.dhall') }}
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 16.15.0
+    - run: npm i
+    - run: npm run test
+
