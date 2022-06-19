@@ -158,7 +158,7 @@ There is really no difference in the API provided by this module so we have `Coe
 
 #### Pros
 
-When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example ~works~ **should work** (there is a discussion around that regression in [this PS compiler issue](https://github.com/purescript/purescript/issues/4338)) now without annotation for the array in `x` prop:
+When you reach for this type of coercing you can expect a better behavior in the case of polymorphic values. The previous example works now without annotation for the array in `x` prop:
 
 ```purescript
 closedCoerceArray ∷ Effect Unit
@@ -166,7 +166,7 @@ closedCoerceArray = do
   let
     -- We hope that this annotation is temporary and could be dropped when the PS constraint
     -- solver issue mentioned above is solved.
-    argument = { x: [] :: Array Int }
+    argument = { x: [] }
 
     r = (Closed.coerce argument :: OptionsWithArrayValue)
 

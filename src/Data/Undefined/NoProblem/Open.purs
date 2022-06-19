@@ -72,8 +72,6 @@ class CoerceProp (given :: Type) (expected :: Type) (debugPath ∷ SList) | expe
 instance coercePropReq
   ∷ (TypeEquals a b)
   ⇒ CoerceProp a (Req b) p
-else instance coercePropOptValueMatch
-  :: CoerceProp a (Opt a) p
 else instance coercePropOptValuesMatch
   :: CoerceProp (Opt a) (Opt a) p
 else instance coercePropOptValues
