@@ -5,6 +5,7 @@
   , "effect"
   , "either"
   , "foreign"
+  , "identity"
   , "maybe"
   , "newtype"
   , "prelude"
