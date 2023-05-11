@@ -90,8 +90,7 @@ pseudoBind o f =
 
 infixl 9 pseudoBind as ?
 
-pseudoMap :: forall a b. (a -> b) -> Opt a -> Opt b
-pseudoMap f = fromMaybe <<< (map f <<< toMaybe)
+foreign import pseudoMap :: forall a b. (a -> b) -> Opt a -> Opt b
 
 -- | Ripped from typelevel-eval
 infixr 2 type Beside as <>
