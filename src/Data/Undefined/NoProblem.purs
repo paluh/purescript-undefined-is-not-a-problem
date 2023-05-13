@@ -91,7 +91,11 @@ pseudoBind o f =
 infixl 9 pseudoBind as ?
 
 pseudoMap :: forall a b. (a -> b) -> Opt a -> Opt b
-pseudoMap f = fromMaybe <<< (map f <<< toMaybe)
+pseudoMap f o =
+  if isUndefined o then
+    undefined
+  else
+    opt (f (unsafeUnwrap o))
 
 -- | Ripped from typelevel-eval
 infixr 2 type Beside as <>
