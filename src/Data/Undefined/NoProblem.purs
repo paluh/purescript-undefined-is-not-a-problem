@@ -29,17 +29,18 @@ derive newtype instance Show a => Show (Req a)
 -- | to omit such field when passing the parameter, but still allowing the
 -- | receiving function to work with the field.
 foreign import data Opt ∷ Type → Type
+type role Opt representational
 
-instance eqOpt ∷ Eq a ⇒ Eq (Opt a) where
+instance Eq a ⇒ Eq (Opt a) where
   eq u1 u2 = toMaybe u1 == toMaybe u2
 
-instance eq1Opt ∷ Eq a ⇒ Eq1 Opt where
+instance Eq a ⇒ Eq1 Opt where
   eq1 u1 u2 = eq1 (toMaybe u1) (toMaybe u2)
 
-instance ordOpt ∷ Ord a ⇒ Ord (Opt a) where
+instance Ord a ⇒ Ord (Opt a) where
   compare u1 u2 = toMaybe u1 `compare` toMaybe u2
 
-instance showOpt ∷ Show a ⇒ Show (Opt a) where
+instance Show a ⇒ Show (Opt a) where
   show = maybe "undefined" ("Opt " <> _) <<< map show <<< toMaybe
 
 foreign import undefined ∷ ∀ a. Opt a
